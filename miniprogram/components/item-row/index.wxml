@@ -1,0 +1,19 @@
+<view class="row-item" bindtap="onTap">
+  <view class="main">
+    <view class="head">
+      <text class="title-ru">{{item.ru}}</text>
+      <text wx:if="{{item.pos}}" class="badge">{{item.pos}}</text>
+    </view>
+    <view class="sub muted">{{item.zh || '（未填写释义）'}}</view>
+  </view>
+
+  <view class="meta">
+    <text class="badge badge-{{item.status}}">{{statusText}}</text>
+    <text class="faint meta-line">box {{item.box}} · {{item.dueText}}</text>
+  </view>
+
+  <view class="actions">
+    <view class="icon-btn" catchtap="onStar">{{item.starred ? '★' : '☆'}}</view>
+    <view class="icon-btn danger" catchtap="onRemove">删</view>
+  </view>
+</view>

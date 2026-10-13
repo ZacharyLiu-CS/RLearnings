@@ -1,96 +1,36 @@
 /**
- * 统一数据仓读写层：所有模块共享同一份 LearningItem 存储，
- * 这是「阅读查词 / 对话生词 / 跟读难点 → 词库复习」闭环的基础。
+ * 统一数据仓读写层（Web / IndexedDB 实现）。
+ * 与小程序 StorageRepository 实现同一个 ItemRepository 契约，
+ * 保证「阅读查词 / 对话生词 / 跟读难点 → 词库复习」闭环在两个端一致。
  */
 import { db } from '@/core/db/database'
-import { srs } from '@/core/srs'
+import { isoNow } from '@/core/utils/date'
+import { createId } from '@/core/utils/id'
+import { dedupeKey, matches, sortByCreatedDesc } from '../../../shared/item'
 import type {
-  ItemSourceModule,
+  BulkResult,
+  ItemPage,
+  ItemQuery,
+  ItemRepository,
   LearningItem,
-  LearningItemType,
   ReviewLog,
   SrsStatus,
-} from '@/core/types'
-import { createId } from '@/core/utils/id'
-import { isoNow } from '@/core/utils/date'
+  StatusCounts,
+} from '../../../shared/types'
 
-export interface ItemQuery {
-  keyword?: string
-  type?: LearningItemType | 'all'
-  status?: SrsStatus | 'all'
-  starredOnly?: boolean
-  tag?: string
-  source?: ItemSourceModule | 'all'
-  limit?: number
-  offset?: number
-}
-
-export interface ItemPage {
-  items: LearningItem[]
-  total: number
-}
-
-export interface BulkResult {
-  added: LearningItem[]
-  duplicates: string[]
-}
-
-export interface StatusCounts {
-  total: number
-  due: number
-  byStatus: Record<SrsStatus, number>
-}
-
-export interface ItemRepository {
-  readonly backend: 'indexeddb' | 'memory'
-  count(): Promise<number>
-  page(query?: ItemQuery): Promise<ItemPage>
-  get(id: string): Promise<LearningItem | undefined>
-  findByRu(ru: string): Promise<LearningItem[]>
-  bulkAdd(items: LearningItem[]): Promise<BulkResult>
-  put(item: LearningItem): Promise<void>
-  patch(id: string, patch: Partial<LearningItem>): Promise<void>
-  remove(ids: string[]): Promise<void>
-  due(nowIso: string, limit: number): Promise<LearningItem[]>
-  all(): Promise<LearningItem[]>
-  clearAll(): Promise<void>
-  logReview(log: Omit<ReviewLog, 'id'>): Promise<void>
-  reviewStats(sinceIso: string): Promise<ReviewLog[]>
-  statusCounts(): Promise<StatusCounts>
-}
+export { createItem, toIndex } from '../../../shared/item'
+export type {
+  BulkResult,
+  ItemPage,
+  ItemQuery,
+  ItemRepository,
+  StatusCounts,
+} from '../../../shared/types'
 
 const DEFAULT_LIMIT = 2000
 
-function normalize(value: string | undefined): string {
-  return (value ?? '').trim().toLowerCase()
-}
-
-function dedupeKey(item: Pick<LearningItem, 'ru' | 'zh'>): string {
-  return `${normalize(item.ru)}|${normalize(item.zh)}`
-}
-
-function matches(item: LearningItem, query: ItemQuery): boolean {
-  if (query.status && query.status !== 'all' && item.srs.status !== query.status) return false
-  if (query.type && query.type !== 'all' && item.type !== query.type) return false
-  if (query.starredOnly && !item.starred) return false
-  if (query.tag && !item.tags.includes(query.tag)) return false
-  if (query.source && query.source !== 'all' && item.source.module !== query.source) return false
-  const keyword = normalize(query.keyword)
-  if (keyword) {
-    const haystack = normalize(
-      [item.ru, item.zh, item.pos, item.forms, item.note, item.tags.join(' '), item.example].join(' '),
-    )
-    if (!haystack.includes(keyword)) return false
-  }
-  return true
-}
-
-function sortByCreatedDesc(items: LearningItem[]): LearningItem[] {
-  return items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
-}
-
 class DexieRepository implements ItemRepository {
-  readonly backend = 'indexeddb' as const
+  readonly backend = 'indexeddb'
 
   count(): Promise<number> {
     return db.items.count()
@@ -198,7 +138,7 @@ class DexieRepository implements ItemRepository {
 }
 
 class MemoryRepository implements ItemRepository {
-  readonly backend = 'memory' as const
+  readonly backend = 'memory'
   private items = new Map<string, LearningItem>()
   private logs: ReviewLog[] = []
 
@@ -219,8 +159,10 @@ class MemoryRepository implements ItemRepository {
   }
 
   findByRu(ru: string): Promise<LearningItem[]> {
-    const key = normalize(ru)
-    return Promise.resolve([...this.items.values()].filter((i) => normalize(i.ru) === key))
+    const key = ru.trim().toLowerCase()
+    return Promise.resolve(
+      [...this.items.values()].filter((item) => item.ru.trim().toLowerCase() === key),
+    )
   }
 
   async bulkAdd(items: LearningItem[]): Promise<BulkResult> {
@@ -304,7 +246,7 @@ export function switchToMemoryBackend(): void {
   active = memoryRepo
 }
 
-export function currentBackend(): 'indexeddb' | 'memory' {
+export function currentBackend(): string {
   return active.backend
 }
 
@@ -327,25 +269,4 @@ export const repository: ItemRepository = {
   logReview: (...args) => active.logReview(...args),
   reviewStats: (...args) => active.reviewStats(...args),
   statusCounts: (...args) => active.statusCounts(...args),
-}
-
-/** 新建学习条目的工厂：统一默认值，保证各模块产出的数据结构一致 */
-export function createItem(input: Partial<LearningItem> & { ru: string }): LearningItem {
-  const now = isoNow()
-  return {
-    id: input.id ?? createId('it'),
-    type: input.type ?? 'word',
-    ru: input.ru.trim(),
-    stress: input.stress,
-    pos: input.pos,
-    zh: input.zh?.trim(),
-    forms: input.forms,
-    example: input.example,
-    note: input.note,
-    tags: input.tags ?? [],
-    source: input.source ?? { module: 'manual' },
-    srs: input.srs ?? srs.create('new', new Date(now)),
-    starred: input.starred ?? false,
-    createdAt: input.createdAt ?? now,
-  }
 }

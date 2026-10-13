@@ -1,0 +1,47 @@
+.page {
+  height: 100vh;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.summary {
+  margin: 20rpx 0;
+}
+
+.btn-sm {
+  min-height: 64rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+}
+
+.list {
+  flex: 1;
+  min-height: 400rpx;
+}
+
+.spacer {
+  position: relative;
+  width: 100%;
+}
+
+.window {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+  padding: 120rpx 0;
+}

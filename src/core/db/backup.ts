@@ -1,9 +1,11 @@
 /**
- * 数据备份与恢复：本地全量导出（JSON）/ CSV 导出 / 导入合并。
- * 兜底方案：即使同步服务不可用，用户数据也不会丢。
+ * 数据备份与恢复（Web 端）：本地全量导出（JSON）/ CSV 导出 / 导入合并。
+ * CSV 编解码与条目工厂复用 shared 层，与小程序端保持一致。
  */
-import { createItem } from '@/core/db/repository'
-import type { LearningItem, ReviewLog } from '@/core/types'
+import { createItem } from '../../../shared/item'
+import type { LearningItem, ReviewLog } from '../../../shared/types'
+
+export { parseCsv, toCsv } from '../../../shared/item'
 
 export const BACKUP_VERSION = 1
 
@@ -34,50 +36,6 @@ export function downloadFile(filename: string, content: string, mime = 'applicat
   anchor.remove()
   // 延迟释放，避免部分浏览器下载被中断
   setTimeout(() => URL.revokeObjectURL(url), 1000)
-}
-
-const CSV_COLUMNS = ['ru', 'stress', 'pos', 'zh', 'forms', 'example', 'tags', 'note'] as const
-
-function escapeCsv(value: string): string {
-  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
-}
-
-export function toCsv(items: LearningItem[]): string {
-  const header = CSV_COLUMNS.join(',')
-  const rows = items.map((item) =>
-    CSV_COLUMNS.map((key) => {
-      const value = key === 'tags' ? item.tags.join('|') : (item[key] ?? '')
-      return escapeCsv(String(value))
-    }).join(','),
-  )
-  return [header, ...rows].join('\n')
-}
-
-export function parseCsv(text: string): Array<Partial<LearningItem>> {
-  const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0)
-  if (lines.length < 2) return []
-  const header = lines[0].split(',').map((cell) => cell.trim())
-  const out: Array<Partial<LearningItem>> = []
-  for (const line of lines.slice(1)) {
-    const cells = line.match(/("([^"]|"")*"|[^,]*)(,|$)/g) ?? []
-    const row: Record<string, string> = {}
-    header.forEach((key, index) => {
-      const raw = (cells[index] ?? '').replace(/,$/, '').trim()
-      row[key] = raw.replace(/^"(.*)"$/s, (_, inner: string) => inner.replace(/""/g, '"'))
-    })
-    if (!row.ru) continue
-    out.push({
-      ru: row.ru,
-      stress: row.stress,
-      pos: row.pos,
-      zh: row.zh,
-      forms: row.forms,
-      example: row.example,
-      note: row.note,
-      tags: (row.tags ?? '').split('|').map((t) => t.trim()).filter(Boolean),
-    })
-  }
-  return out
 }
 
 /** 解析导入文件，产出可直接入库的条目（自动补全默认值） */

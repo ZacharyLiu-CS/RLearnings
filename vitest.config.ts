@@ -11,7 +11,9 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.spec.ts'],
+    // wx 桩让小程序端数据层也能在 Node 下被覆盖
+    setupFiles: ['tests/setup-wx.ts'],
+    include: ['src/**/*.spec.ts', 'shared/**/*.spec.ts', 'miniprogram/**/*.spec.ts'],
     restoreMocks: true,
   },
 })

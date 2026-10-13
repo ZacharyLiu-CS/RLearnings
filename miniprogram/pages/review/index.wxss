@@ -1,0 +1,97 @@
+.summary {
+  margin-bottom: 16rpx;
+}
+
+.flashcard {
+  margin-top: 32rpx;
+  min-height: 520rpx;
+  border-radius: 28rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.face {
+  width: 100%;
+  padding: 48rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  text-align: center;
+}
+
+.flash-ru {
+  font-size: 64rpx;
+}
+
+.flash-ru-small {
+  font-size: 44rpx;
+}
+
+.flash-zh {
+  font-size: 42rpx;
+}
+
+.small {
+  font-size: 26rpx;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.tags {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hint {
+  font-size: 24rpx;
+  margin-top: 24rpx;
+}
+
+.ratings {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 40rpx;
+}
+
+.rate {
+  flex: 1;
+}
+
+.rate-danger {
+  border-color: rgba(255, 92, 92, 0.4);
+}
+
+.rate-warn {
+  border-color: rgba(255, 176, 32, 0.4);
+}
+
+.rate-success {
+  border-color: rgba(62, 207, 142, 0.4);
+}
+
+.finish {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 120rpx;
+}
+
+.finish-title {
+  font-size: 36rpx;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 120rpx 0;
+}

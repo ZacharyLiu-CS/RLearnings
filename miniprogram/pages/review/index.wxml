@@ -1,0 +1,50 @@
+<view class="page">
+  <view class="row summary">
+    <text class="faint">剩余 {{remaining}} / 共 {{total}}</text>
+    <view class="spacer" />
+    <view class="chip" bindtap="onReload">换一组</view>
+  </view>
+
+  <view class="progress">
+    <view class="progress-fill" style="width: {{progress}}%" />
+  </view>
+
+  <view wx:if="{{loading}}" class="empty faint">加载中…</view>
+
+  <view wx:elif="{{finished}}" class="card finish">
+    <text class="finish-title">本组完成 🎉</text>
+    <text class="muted">已完成 {{graded}} 次评分，数据已写入本地。</text>
+    <view class="btn btn-primary" bindtap="onReload">再来一组</view>
+    <view class="btn btn-ghost" bindtap="onGoLibrary">回到词库</view>
+  </view>
+
+  <view wx:elif="{{!card}}" class="empty">
+    <text class="faint">当前没有待复习内容</text>
+    <view class="btn btn-primary" bindtap="onGoLibrary">去词库看看</view>
+  </view>
+
+  <block wx:else>
+    <view class="flashcard" bindtap="onFlip">
+      <view wx:if="{{!flipped}}" class="face">
+        <text class="title-ru flash-ru">{{card.ru}}</text>
+        <text wx:if="{{card.stress}}" class="faint">{{card.stress}}</text>
+        <text class="faint hint">点击翻面</text>
+      </view>
+      <view wx:else class="face">
+        <text class="title-ru flash-ru-small">{{card.ru}}</text>
+        <text class="flash-zh">{{card.zh}}</text>
+        <text wx:if="{{card.forms}}" class="muted small">{{card.forms}}</text>
+        <text wx:if="{{card.example}}" class="muted small italic">{{card.example}}</text>
+        <view class="row tags">
+          <text wx:for="{{card.tags}}" wx:key="*this" class="badge">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="ratings">
+      <view class="btn rate rate-danger" bindtap="onUnknown">不认识</view>
+      <view class="btn rate rate-warn" bindtap="onFuzzy">模糊</view>
+      <view class="btn rate rate-success" bindtap="onKnown">认识</view>
+    </view>
+  </block>
+</view>

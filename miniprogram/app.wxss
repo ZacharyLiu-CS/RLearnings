@@ -1,0 +1,176 @@
+/** 全局样式：与 Web 端一致的设计令牌 **/
+page {
+  --bg: #0f1115;
+  --bg-elevated: #161a21;
+  --bg-soft: #1c2129;
+  --border: #262c37;
+  --text: #e8ecf3;
+  --text-dim: #9aa5b5;
+  --text-faint: #6b7684;
+  --accent: #4f8cff;
+  --accent-soft: rgba(79, 140, 255, 0.14);
+  --success: #3ecf8e;
+  --warn: #ffb020;
+  --danger: #ff5c5c;
+  --radius: 14rpx;
+
+  background: var(--bg);
+  color: var(--text);
+  font-size: 30rpx;
+  line-height: 1.55;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1rpx solid var(--border);
+  border-radius: 24rpx;
+  padding: 28rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.muted {
+  color: var(--text-dim);
+}
+
+.faint {
+  color: var(--text-faint);
+}
+
+.title-ru {
+  font-family: serif;
+  font-size: 40rpx;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80rpx;
+  padding: 0 28rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 30rpx;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #08101f;
+  font-weight: 600;
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: rgba(255, 92, 92, 0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+}
+
+.input {
+  width: 100%;
+  min-height: 84rpx;
+  padding: 16rpx 24rpx;
+  box-sizing: border-box;
+  border-radius: 20rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 30rpx;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 300rpx;
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+  border-radius: 20rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 30rpx;
+}
+
+.picker {
+  min-height: 80rpx;
+  padding: 0 24rpx;
+  display: flex;
+  align-items: center;
+  border-radius: 20rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  font-size: 28rpx;
+}
+
+.chip {
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  font-size: 26rpx;
+}
+
+.chip-active {
+  background: var(--accent-soft);
+  border-color: rgba(79, 140, 255, 0.4);
+  color: #cfe0ff;
+}
+
+.badge {
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  font-size: 22rpx;
+}
+
+.badge-new {
+  color: #9db8ff;
+}
+
+.badge-learning {
+  color: #ffb020;
+}
+
+.badge-reviewing {
+  color: #7ee0c0;
+}
+
+.badge-mastered {
+  color: #3ecf8e;
+}
+
+.progress {
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+}

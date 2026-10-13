@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "词库",
+  "usingComponents": {
+    "item-row": "/components/item-row/index"
+  }
+}

@@ -9,10 +9,12 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
+    "typecheck:mp": "tsc -p miniprogram/tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "check:budget": "node scripts/check-budget.mjs",
     "sync:tesseract": "node scripts/sync-tesseract-assets.mjs",
+    "sync:shared": "node scripts/sync-shared.mjs",
     "postinstall": "node scripts/sync-tesseract-assets.mjs"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.5",
+    "@types/wechat-miniprogram": "^3.4.10",
     "@vitejs/plugin-vue": "^5.2.1",
     "fake-indexeddb": "^6.2.5",
     "typescript": "~5.7.3",

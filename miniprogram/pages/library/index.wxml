@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="toolbar">
+    <input
+      class="input"
+      placeholder="搜索俄语 / 释义 / 标签"
+      value="{{keyword}}"
+      bindinput="onKeyword"
+    />
+    <picker mode="selector" range="{{statusRange}}" value="{{statusIndex}}" bindchange="onStatusChange">
+      <view class="picker">{{statusRange[statusIndex]}}</view>
+    </picker>
+    <picker mode="selector" range="{{typeRange}}" value="{{typeIndex}}" bindchange="onTypeChange">
+      <view class="picker">{{typeRange[typeIndex]}}</view>
+    </picker>
+    <view class="chip {{starredOnly ? 'chip-active' : ''}}" bindtap="onToggleStarred">★ 收藏</view>
+  </view>
+
+  <view class="row summary">
+    <text class="faint">共 {{total}} 条</text>
+    <view class="spacer" />
+    <view class="btn btn-primary btn-sm" bindtap="onAdd">+ 录入</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty faint">加载中…</view>
+
+  <view wx:elif="{{total === 0}}" class="empty">
+    <text class="faint">词库还是空的，先去录入吧</text>
+    <view class="btn btn-primary" bindtap="onAdd">去录入</view>
+  </view>
+
+  <scroll-view wx:else class="list" scroll-y bindscroll="onScroll" enhanced show-scrollbar="{{false}}">
+    <view class="spacer" style="height: {{listHeight}}px">
+      <view class="window" style="transform: translateY({{offsetY}}px);">
+        <item-row
+          wx:for="{{rows}}"
+          wx:key="id"
+          item="{{item}}"
+          bind:star="onStar"
+          bind:remove="onRemove"
+          bind:edit="onEdit"
+        />
+      </view>
+    </view>
+  </scroll-view>
+</view>

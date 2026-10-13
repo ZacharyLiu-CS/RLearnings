@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/review/index",
+    "pages/library/index",
+    "pages/add/index",
+    "pages/stats/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#161a21",
+    "navigationBarTitleText": "Русский · 俄语学习",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0f1115"
+  },
+  "tabBar": {
+    "color": "#9aa5b5",
+    "selectedColor": "#4f8cff",
+    "backgroundColor": "#161a21",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/review/index", "text": "复习" },
+      { "pagePath": "pages/library/index", "text": "词库" },
+      { "pagePath": "pages/add/index", "text": "录入" },
+      { "pagePath": "pages/stats/index", "text": "统计" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: 类型检查 · 单测 · 构建 · 性能预算
+  web:
+    name: Web 端 · 类型检查 · 单测 · 构建 · 性能预算
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,3 +36,25 @@ jobs:
 
       - name: 首屏性能预算（gzip ≤ 200KB）
         run: npm run check:budget
+
+  miniprogram:
+    name: 小程序端 · 类型检查 · 共享逻辑一致性
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 小程序类型检查
+        run: npm run typecheck:mp
+
+      - name: 共享逻辑一致性（shared → miniprogram/shared 无漂移）
+        run: |
+          npm run sync:shared
+          git diff --exit-code -- miniprogram/shared

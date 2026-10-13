@@ -1,0 +1,17 @@
+{
+  "description": "俄语学习平台（原生小程序）",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "appid": "touristappid",
+  "projectname": "russian-learning",
+  "libVersion": "3.5.0",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "packNpmManually": false,
+    "useCompilerPlugins": ["typescript"]
+  }
+}

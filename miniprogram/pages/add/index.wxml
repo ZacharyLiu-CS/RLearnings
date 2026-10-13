@@ -1,0 +1,106 @@
+<view class="page">
+  <view class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="*this"
+      class="tab {{tabIndex === index ? 'tab-active' : ''}}"
+      data-index="{{index}}"
+      bindtap="onTab"
+    >{{item}}</view>
+  </view>
+
+  <!-- 手动录入 -->
+  <view wx:if="{{tabIndex === 0}}" class="card">
+    <view class="field">
+      <text class="label">俄语原文 *</text>
+      <input class="input" value="{{form.ru}}" data-field="ru" bindinput="onField" placeholder="например: дом" />
+    </view>
+    <view class="field">
+      <text class="label">中文释义</text>
+      <input class="input" value="{{form.zh}}" data-field="zh" bindinput="onField" placeholder="房子" />
+    </view>
+    <view class="field">
+      <text class="label">词性</text>
+      <input class="input" value="{{form.pos}}" data-field="pos" bindinput="onField" placeholder="noun / verb / adj" />
+    </view>
+    <view class="field">
+      <text class="label">重音标注</text>
+      <input class="input" value="{{form.stress}}" data-field="stress" bindinput="onField" placeholder="до́м" />
+    </view>
+    <view class="field">
+      <text class="label">变位 / 复数</text>
+      <input class="input" value="{{form.forms}}" data-field="forms" bindinput="onField" />
+    </view>
+    <view class="field">
+      <text class="label">例句</text>
+      <input class="input" value="{{form.example}}" data-field="example" bindinput="onField" />
+    </view>
+    <view class="field">
+      <text class="label">标签（逗号分隔）</text>
+      <input class="input" value="{{form.tags}}" data-field="tags" bindinput="onField" placeholder="名词, 高频" />
+    </view>
+
+    <view class="btn btn-primary save-btn" bindtap="onSave">{{editId ? '保存修改' : '保存'}}</view>
+  </view>
+
+  <!-- 批量粘贴 -->
+  <view wx:elif="{{tabIndex === 1}}" class="card">
+    <textarea
+      class="textarea"
+      value="{{bulkText}}"
+      data-field="bulk"
+      bindinput="onBulkText"
+      placeholder="每行一条，支持 - / = / , / Tab 分隔释义"
+    />
+    <view class="row summary">
+      <text class="faint">已解析 {{bulkCount}} 条</text>
+      <view class="spacer" />
+      <view class="chip" bindtap="onFillSample">填入示例</view>
+      <view class="btn btn-primary btn-sm" bindtap="onBulkSubmit">批量入库</view>
+    </view>
+
+    <view wx:if="{{bulkCount}}" class="preview">
+      <view wx:for="{{bulkPreview}}" wx:key="index" class="row preview-row">
+        <text class="title-ru preview-ru">{{item.ru}}</text>
+        <text class="muted">{{item.zh}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 拍照 OCR -->
+  <view wx:else class="card">
+    <view class="btn btn-primary" bindtap="onPickImage">{{ocrBusy ? '识别中…' : '拍照 / 选择图片'}}</view>
+
+    <view wx:if="{{ocrTip}}" class="tip">{{ocrTip}}</view>
+
+    <view wx:if="{{!ocrConfigured}}" class="tip faint">
+      小程序内无法运行 Tesseract.js（无 WASM/Worker 且包体受限），OCR 需由服务端接口提供：
+      在 miniprogram/config.ts 配置 ocrEndpoint 后即可使用。
+    </view>
+
+    <view wx:if="{{drafts.length}}" class="drafts">
+      <view class="row summary">
+        <text class="faint">已选 {{drafts.length}} 条，标黄行置信度较低请重点校对</text>
+      </view>
+      <view wx:for="{{drafts}}" wx:key="index" class="draft-row {{item.low ? 'draft-low' : ''}}">
+        <switch checked="{{item.selected}}" data-index="{{index}}" bindchange="onDraftToggle" color="#4f8cff" />
+        <input
+          class="input draft-input"
+          value="{{item.ru}}"
+          data-index="{{index}}"
+          data-field="ru"
+          bindinput="onDraftField"
+        />
+        <input
+          class="input draft-input"
+          value="{{item.zh}}"
+          placeholder="释义（可选）"
+          data-index="{{index}}"
+          data-field="zh"
+          bindinput="onDraftField"
+        />
+      </view>
+      <view class="btn btn-primary save-btn" bindtap="onOcrSubmit">批量入库</view>
+    </view>
+  </view>
+</view>
