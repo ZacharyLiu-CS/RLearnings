@@ -56,6 +56,14 @@ const DEMO_WORDS: Array<[string, string, string]> = [
   ['счастье', '幸福', 'noun'],
 ]
 
+/**
+ * 去掉 Vue 响应式代理：IndexedDB 的结构化克隆不能处理 Proxy（会抛 DataCloneError），
+ * 因此所有写入仓储的对象都先做一次纯对象化。
+ */
+function plain<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
 function shuffle<T>(list: T[]): T[] {
   const out = [...list]
   for (let i = out.length - 1; i > 0; i -= 1) {
@@ -138,7 +146,7 @@ export const useWordsStore = defineStore('words', () => {
   ): Promise<{ added: number; duplicates: number }> {
     const created = drafts
       .filter((draft) => draft.ru.trim())
-      .map((draft) => createItem({ ...draft, source: { module: source, refId } }))
+      .map((draft) => createItem({ ...plain(draft), source: { module: source, refId } }))
 
     if (!created.length) return { added: 0, duplicates: 0 }
 
@@ -162,7 +170,7 @@ export const useWordsStore = defineStore('words', () => {
     const snapshot = index >= 0 ? items.value[index] : undefined
     if (snapshot) items.value[index] = { ...snapshot, ...patch, id }
     try {
-      await repository.patch(id, patch)
+      await repository.patch(id, plain(patch))
       bus.emit('item:updated', { id })
     } catch (err) {
       if (snapshot) items.value[index] = snapshot

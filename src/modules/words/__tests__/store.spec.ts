@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { reactive } from 'vue'
 import { useWordsStore } from '@/modules/words/store'
 import { createItem, repository } from '@/core/db/repository'
 
@@ -21,6 +22,16 @@ describe('单词模块 store', () => {
 
     expect(store.items).toHaveLength(1)
     expect(store.items[0].source.module).toBe('manual')
+  })
+
+  it('入库前去除响应式代理（IndexedDB 无法克隆 Proxy）', async () => {
+    const store = useWordsStore()
+    const draft = reactive({ ru: 'дом', zh: '房子', tags: ['高频'] })
+    const { added } = await store.addItems([draft], 'manual')
+    expect(added).toBe(1)
+    const stored = (await repository.page({ keyword: 'дом' })).items[0]
+    expect(stored.tags).toEqual(['高频'])
+    expect(stored.zh).toBe('房子')
   })
 
   it('评分「认识」推进 box，「不认识」归零并在本组重现', async () => {

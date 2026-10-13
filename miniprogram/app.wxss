@@ -1,23 +1,26 @@
-/** 全局样式：与 Web 端一致的设计令牌 **/
+/* ============================================================
+   瑞士风格（Swiss Style）小程序全局样式
+   - 无衬线字体、严格栅格、纸白底 + 墨黑字 + 单一强调红
+   - 发丝分隔线、极小圆角、无阴影、微标签全大写加字距
+   ============================================================ */
 page {
-  --bg: #0f1115;
-  --bg-elevated: #161a21;
-  --bg-soft: #1c2129;
-  --border: #262c37;
-  --text: #e8ecf3;
-  --text-dim: #9aa5b5;
-  --text-faint: #6b7684;
-  --accent: #4f8cff;
-  --accent-soft: rgba(79, 140, 255, 0.14);
-  --success: #3ecf8e;
-  --warn: #ffb020;
-  --danger: #ff5c5c;
-  --radius: 14rpx;
+  --paper: #ffffff;
+  --paper-dim: #f4f4f1;
+  --paper-soft: #ececea;
+  --ink: #111111;
+  --ink-dim: #5c5c58;
+  --ink-faint: #8f8f88;
+  --line: #dcdcd6;
+  --accent: #d4321f;
+  --accent-dim: rgba(212, 50, 31, 0.08);
+  --font: 'Helvetica Neue', Helvetica, 'PingFang SC', system-ui, sans-serif;
+  --font-ru: 'Helvetica Neue', Helvetica, Georgia, serif;
 
-  background: var(--bg);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
   font-size: 30rpx;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .page {
@@ -29,10 +32,17 @@ page {
 }
 
 .card {
-  background: var(--bg-elevated);
-  border: 1rpx solid var(--border);
-  border-radius: 24rpx;
+  background: var(--paper);
+  border: 1rpx solid var(--line);
+  border-radius: 4rpx;
   padding: 28rpx;
+}
+
+.micro {
+  font-size: 22rpx;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .row {
@@ -46,15 +56,15 @@ page {
 }
 
 .muted {
-  color: var(--text-dim);
+  color: var(--ink-dim);
 }
 
 .faint {
-  color: var(--text-faint);
+  color: var(--ink-faint);
 }
 
 .title-ru {
-  font-family: serif;
+  font-family: var(--font-ru);
   font-size: 40rpx;
 }
 
@@ -64,27 +74,28 @@ page {
   justify-content: center;
   min-height: 80rpx;
   padding: 0 28rpx;
-  border-radius: 20rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text);
-  font-size: 30rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 29rpx;
 }
 
 .btn-primary {
   background: var(--accent);
-  border-color: transparent;
-  color: #08101f;
+  border-color: var(--accent);
+  color: #fff;
   font-weight: 600;
 }
 
 .btn-danger {
-  color: var(--danger);
-  border-color: rgba(255, 92, 92, 0.35);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .btn-ghost {
-  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-dim);
 }
 
 .input {
@@ -92,11 +103,11 @@ page {
   min-height: 84rpx;
   padding: 16rpx 24rpx;
   box-sizing: border-box;
-  border-radius: 20rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text);
-  font-size: 30rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 29rpx;
 }
 
 .textarea {
@@ -104,11 +115,11 @@ page {
   min-height: 300rpx;
   padding: 20rpx 24rpx;
   box-sizing: border-box;
-  border-radius: 20rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text);
-  font-size: 30rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 29rpx;
 }
 
 .picker {
@@ -116,57 +127,63 @@ page {
   padding: 0 24rpx;
   display: flex;
   align-items: center;
-  border-radius: 20rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text-dim);
+  border-radius: 4rpx;
+  border: 1rpx solid var(--line);
+  background: var(--paper);
+  color: var(--ink-dim);
   font-size: 28rpx;
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
   padding: 8rpx 20rpx;
   border-radius: 999rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text-dim);
+  border: 1rpx solid var(--line);
+  background: var(--paper);
+  color: var(--ink-dim);
   font-size: 26rpx;
 }
 
 .chip-active {
-  background: var(--accent-soft);
-  border-color: rgba(79, 140, 255, 0.4);
-  color: #cfe0ff;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
 }
 
 .badge {
   padding: 4rpx 14rpx;
-  border-radius: 999rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-soft);
-  color: var(--text-dim);
+  border: 1rpx solid var(--line);
+  background: var(--paper);
+  color: var(--ink-dim);
   font-size: 22rpx;
+  letter-spacing: 0.04em;
 }
 
 .badge-new {
-  color: #9db8ff;
+  color: #1a4cd0;
+  border-color: #1a4cd0;
 }
 
 .badge-learning {
-  color: #ffb020;
+  color: #a35a00;
+  border-color: #a35a00;
 }
 
 .badge-reviewing {
-  color: #7ee0c0;
+  color: #0f6b4f;
+  border-color: #0f6b4f;
 }
 
 .badge-mastered {
-  color: #3ecf8e;
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .progress {
   height: 10rpx;
   border-radius: 999rpx;
-  background: var(--bg-soft);
+  background: var(--paper-soft);
   overflow: hidden;
 }
 

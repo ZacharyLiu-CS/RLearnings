@@ -7,7 +7,7 @@ import type { LearningModule } from '@/core/types'
 export const sentencesModule: LearningModule = {
   id: 'sentences',
   title: '句子收藏',
-  icon: '🧩',
+  icon: 'bulk',
   version: '0.1.0',
   description: '拓展性验证模块：句子同样进入统一 SRS 调度',
 
@@ -23,7 +23,7 @@ export const sentencesModule: LearningModule = {
     ctx.registerMenu({
       id: 'sentences',
       title: '句子 Demo',
-      icon: '🧩',
+      icon: 'bulk',
       routeName: 'sentences',
       order: 9,
     })

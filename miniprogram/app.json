@@ -3,19 +3,20 @@
     "pages/review/index",
     "pages/library/index",
     "pages/add/index",
-    "pages/stats/index"
+    "pages/stats/index",
+    "pages/settings/index"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#161a21",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#111111",
     "navigationBarTitleText": "Русский · 俄语学习",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#0f1115"
+    "backgroundColor": "#ffffff"
   },
   "tabBar": {
-    "color": "#9aa5b5",
-    "selectedColor": "#4f8cff",
-    "backgroundColor": "#161a21",
+    "color": "#5c5c58",
+    "selectedColor": "#d4321f",
+    "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
       { "pagePath": "pages/review/index", "text": "复习" },

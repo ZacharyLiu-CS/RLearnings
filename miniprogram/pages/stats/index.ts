@@ -95,6 +95,10 @@ Page({
     })
   },
 
+  onGoSettings() {
+    wx.navigateTo({ url: '/pages/settings/index' })
+  },
+
   async onExportJson() {
     const count = await exportJsonToClipboard()
     wx.showToast({ title: `已复制 ${count} 条备份`, icon: 'none' })

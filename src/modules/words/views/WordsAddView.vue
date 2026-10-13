@@ -3,14 +3,16 @@ import { ref } from 'vue'
 import ManualEntry from '../components/ManualEntry.vue'
 import BulkEntry from '../components/BulkEntry.vue'
 import OcrCapture from '../components/OcrCapture.vue'
+import AppIcon from '@/ui/components/AppIcon.vue'
 
+/** 录入优先级：OCR 扫描 → 手动（AI 补全）→ 批量粘贴 */
 const tabs = [
-  { key: 'manual', label: '✍️ 手动录入' },
-  { key: 'bulk', label: '📋 批量粘贴' },
-  { key: 'ocr', label: '📷 拍照 OCR' },
+  { key: 'ocr', label: '拍照 OCR', icon: 'camera' },
+  { key: 'manual', label: '手动录入', icon: 'sparkle' },
+  { key: 'bulk', label: '批量粘贴', icon: 'bulk' },
 ] as const
 
-const active = ref<(typeof tabs)[number]['key']>('manual')
+const active = ref<(typeof tabs)[number]['key']>('ocr')
 </script>
 
 <template>
@@ -23,14 +25,15 @@ const active = ref<(typeof tabs)[number]['key']>('manual')
         type="button"
         @click="active = tab.key"
       >
+        <AppIcon :name="tab.icon as never" :size="16" />
         {{ tab.label }}
       </button>
     </div>
 
     <!-- 不缓存 OCR 页：切换即释放摄像头与 Worker -->
-    <ManualEntry v-if="active === 'manual'" />
-    <BulkEntry v-else-if="active === 'bulk'" />
-    <OcrCapture v-else />
+    <OcrCapture v-if="active === 'ocr'" />
+    <ManualEntry v-else-if="active === 'manual'" />
+    <BulkEntry v-else />
   </div>
 </template>
 
@@ -38,29 +41,39 @@ const active = ref<(typeof tabs)[number]['key']>('manual')
 .add {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  overflow: auto;
+  padding-bottom: 20px;
 }
 
 .tabs {
   display: flex;
-  gap: 6px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 6px;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 .tab {
   flex: 1;
-  min-height: 40px;
-  border-radius: var(--radius-sm);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: none;
-  background: transparent;
-  color: var(--text-dim);
+  background: var(--paper);
+  color: var(--ink-dim);
+  font-size: 14px;
+  border-right: 1px solid var(--line);
+}
+
+.tab:last-child {
+  border-right: none;
 }
 
 .tab.is-active {
-  background: var(--accent-soft);
-  color: #cfe0ff;
+  background: var(--ink);
+  color: #fff;
 }
 </style>

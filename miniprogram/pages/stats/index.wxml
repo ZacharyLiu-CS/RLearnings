@@ -45,6 +45,7 @@
   <view class="card">
     <text class="section-title">数据管理</text>
     <view class="actions">
+      <view class="btn btn-sm" bindtap="onGoSettings">AI 设置（DeepSeek Key）</view>
       <view class="btn btn-sm" bindtap="onExportJson">导出 JSON（复制到剪贴板）</view>
       <view class="btn btn-sm" bindtap="onExportCsv">导出 CSV</view>
       <view class="btn btn-sm" bindtap="onImport">从剪贴板导入</view>

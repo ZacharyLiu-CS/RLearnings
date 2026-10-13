@@ -11,3 +11,6 @@ coverage
 .env
 .env.*
 !.env.example
+
+# 本地测试用的 API Key（禁止提交）
+tmp/

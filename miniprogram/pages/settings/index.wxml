@@ -1,0 +1,59 @@
+<view class="page">
+  <view class="card">
+    <text class="micro title">模型服务</text>
+    <text class="muted desc">
+      填写 Key 后，录入只需给出俄语单词，释义 / 词性 / 重音 / 变位 / 例句 / 标签由模型自动生成。
+    </text>
+
+    <view class="field">
+      <text class="micro label">服务商</text>
+      <view class="chip chip-active">DeepSeek</view>
+      <text class="faint tiny">后续版本将支持更多服务商</text>
+    </view>
+
+    <view class="field">
+      <text class="micro label">API KEY</text>
+      <input
+        class="input"
+        password="{{!showKey}}"
+        value="{{form.apiKey}}"
+        placeholder="sk-..."
+        bindinput="onKey"
+        confirm-type="done"
+      />
+      <view class="link" bindtap="onToggleKey">{{showKey ? '隐藏' : '显示'}}</view>
+    </view>
+
+    <view class="field">
+      <text class="micro label">接口地址</text>
+      <input class="input" value="{{form.baseUrl}}" placeholder="https://api.deepseek.com" bindinput="onBase" />
+    </view>
+
+    <view class="field">
+      <text class="micro label">模型</text>
+      <picker mode="selector" range="{{modelLabels}}" value="{{modelIndex}}" bindchange="onModelChange">
+        <view class="picker">{{modelLabels[modelIndex]}}</view>
+      </picker>
+      <input
+        wx:if="{{customModel}}"
+        class="input custom"
+        value="{{form.model}}"
+        placeholder="输入模型 ID，如 deepseek-flash"
+        bindinput="onCustomModel"
+      />
+    </view>
+
+    <view wx:if="{{result}}" class="notice {{resultOk ? 'notice-ok' : 'notice-bad'}}">{{result}}</view>
+
+    <view class="actions">
+      <view class="btn" bindtap="onTest">{{testing ? '测试中…' : '测试连接'}}</view>
+      <view class="btn btn-primary" bindtap="onSave">保存配置</view>
+      <view class="btn btn-ghost" bindtap="onClear">清除</view>
+    </view>
+
+    <text class="faint tiny foot">
+      Key 仅保存在本机，不会写入备份数据。
+      <block wx:if="{{saved}}"> 当前模型：{{form.model || '未设置'}}</block>
+    </text>
+  </view>
+</view>

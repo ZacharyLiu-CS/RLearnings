@@ -2,21 +2,36 @@
 import { nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 import { useWordsStore } from '../store'
 import { usePlatformStore } from '@/core/stores/platform'
+import { useAiStore } from '@/core/ai/settings'
+import { enrichWord } from '@/core/ai/client'
 import { disposeOcr, recognizeImage } from '../ocr/ocr.client'
+import AppIcon from '@/ui/components/AppIcon.vue'
 
 type Stage = 'idle' | 'camera' | 'ocr' | 'proofread'
 
 const store = useWordsStore()
 const platform = usePlatformStore()
+const ai = useAiStore()
+ai.load()
 
 const stage = ref<Stage>('idle')
+const aiEnriching = ref(false)
 const error = ref('')
 const progress = ref(0)
 const progressText = ref('准备识别')
 const videoRef = ref<HTMLVideoElement | null>(null)
 const stageRef = ref<HTMLElement | null>(null)
 const fileRef = ref<HTMLInputElement | null>(null)
-const drafts = ref<Array<{ ru: string; zh: string; selected: boolean; low: boolean }>>([])
+interface DraftRow {
+  ru: string
+  zh: string
+  pos?: string
+  example?: string
+  selected: boolean
+  low: boolean
+}
+
+const drafts = ref<DraftRow[]>([])
 
 let stream: MediaStream | null = null
 
@@ -159,6 +174,34 @@ async function runOcr(bitmap: ImageBitmap) {
   }
 }
 
+/** 对勾选行做 AI 补全：只给原文，模型补释义 / 词性 / 例句 */
+async function onAiEnrich() {
+  const targets = drafts.value.filter((draft) => draft.selected && draft.ru.trim())
+  if (!targets.length) {
+    platform.pushToast('请先勾选要补全的行', 'warn')
+    return
+  }
+  if (!ai.configured) {
+    platform.pushToast('未配置 API Key，请先在「AI」页填写', 'warn')
+    return
+  }
+  aiEnriching.value = true
+  try {
+    for (const draft of targets) {
+      const result = await enrichWord(ai.config, draft.ru)
+      draft.ru = result.ru || draft.ru
+      draft.zh = result.zh ?? draft.zh
+      draft.pos = result.pos
+      draft.example = result.example
+    }
+    platform.pushToast(`已补全 ${targets.length} 行`, 'success')
+  } catch (err) {
+    platform.pushToast(err instanceof Error ? err.message : 'AI 补全失败', 'error')
+  } finally {
+    aiEnriching.value = false
+  }
+}
+
 async function submit() {
   const selected = drafts.value.filter((draft) => draft.selected && draft.ru.trim())
   if (!selected.length) {
@@ -166,7 +209,13 @@ async function submit() {
     return
   }
   await store.addItems(
-    selected.map((draft) => ({ ru: draft.ru.trim(), zh: draft.zh.trim() || undefined, tags: ['OCR'] })),
+    selected.map((draft) => ({
+      ru: draft.ru.trim(),
+      zh: draft.zh.trim() || undefined,
+      pos: draft.pos,
+      example: draft.example,
+      tags: ['OCR'],
+    })),
     'ocr',
   )
   drafts.value = []
@@ -186,8 +235,14 @@ onBeforeUnmount(() => {
     <!-- 入口 -->
     <div v-if="stage === 'idle'" class="card">
       <div class="row" style="flex-wrap: wrap; gap: 10px">
-        <button class="btn btn-primary" type="button" @click="openCamera">📷 打开摄像头拍照</button>
-        <button class="btn" type="button" @click="fileRef?.click()">🖼️ 从相册导入</button>
+        <button class="btn btn-primary" type="button" @click="openCamera">
+          <AppIcon name="camera" :size="16" />
+          打开摄像头拍照
+        </button>
+        <button class="btn" type="button" @click="fileRef?.click()">
+          <AppIcon name="library" :size="16" />
+          从相册导入
+        </button>
       </div>
       <p class="muted" style="font-size: 13px; margin: 12px 0 0">
         建议拍摄印刷体俄语，取景框对准一行或多行单词；识别在后台线程执行，界面不会卡顿。
@@ -226,6 +281,10 @@ onBeforeUnmount(() => {
 
       <div class="row" style="margin-top: 14px">
         <button class="btn btn-ghost" type="button" @click="drafts = []; stage = 'idle'">放弃</button>
+        <button class="btn" type="button" :disabled="aiEnriching" @click="onAiEnrich">
+          <AppIcon name="sparkle" :size="16" />
+          {{ aiEnriching ? '补全中…' : 'AI 补全选中项' }}
+        </button>
         <div class="spacer" />
         <button class="btn btn-primary" type="button" @click="submit">批量入库</button>
       </div>

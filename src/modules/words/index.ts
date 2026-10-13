@@ -31,21 +31,28 @@ const routes = [
     meta: { title: '统计' },
     component: () => import('./views/WordsStatsView.vue'),
   },
+  {
+    path: '/words/settings',
+    name: 'words-settings',
+    meta: { title: 'AI 设置' },
+    component: () => import('./views/WordsSettingsView.vue'),
+  },
 ]
 
 const menu: MenuEntry[] = [
-  { id: 'words-review', title: '复习', icon: '⚡', routeName: 'words-review', order: 1 },
-  { id: 'words-library', title: '词库', icon: '📖', routeName: 'words-library', order: 2 },
-  { id: 'words-add', title: '录入', icon: '✍️', routeName: 'words-add', order: 3 },
-  { id: 'words-stats', title: '统计', icon: '📊', routeName: 'words-stats', order: 4 },
+  { id: 'words-review', title: '复习', icon: 'bolt', routeName: 'words-review', order: 1 },
+  { id: 'words-library', title: '词库', icon: 'library', routeName: 'words-library', order: 2 },
+  { id: 'words-add', title: '录入', icon: 'plus', routeName: 'words-add', order: 3 },
+  { id: 'words-stats', title: '统计', icon: 'chart', routeName: 'words-stats', order: 4 },
+  { id: 'words-settings', title: 'AI', icon: 'settings', routeName: 'words-settings', order: 5 },
 ]
 
 export const wordsModule: LearningModule = {
   id: 'words',
   title: '单词记忆',
-  icon: '🔤',
-  version: '1.0.0',
-  description: '录入（手动 / 批量 / 拍照 OCR）+ SRS 复习 + 统计',
+  icon: 'library',
+  version: '1.1.0',
+  description: 'OCR / AI 补全录入 + SRS 复习 + 统计',
 
   install(ctx) {
     ctx.addRoutes(routes)

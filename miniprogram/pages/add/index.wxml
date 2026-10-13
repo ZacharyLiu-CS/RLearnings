@@ -9,42 +9,97 @@
     >{{item}}</view>
   </view>
 
-  <!-- 手动录入 -->
+  <!-- 1. 拍照 OCR -->
   <view wx:if="{{tabIndex === 0}}" class="card">
-    <view class="field">
-      <text class="label">俄语原文 *</text>
-      <input class="input" value="{{form.ru}}" data-field="ru" bindinput="onField" placeholder="например: дом" />
-    </view>
-    <view class="field">
-      <text class="label">中文释义</text>
-      <input class="input" value="{{form.zh}}" data-field="zh" bindinput="onField" placeholder="房子" />
-    </view>
-    <view class="field">
-      <text class="label">词性</text>
-      <input class="input" value="{{form.pos}}" data-field="pos" bindinput="onField" placeholder="noun / verb / adj" />
-    </view>
-    <view class="field">
-      <text class="label">重音标注</text>
-      <input class="input" value="{{form.stress}}" data-field="stress" bindinput="onField" placeholder="до́м" />
-    </view>
-    <view class="field">
-      <text class="label">变位 / 复数</text>
-      <input class="input" value="{{form.forms}}" data-field="forms" bindinput="onField" />
-    </view>
-    <view class="field">
-      <text class="label">例句</text>
-      <input class="input" value="{{form.example}}" data-field="example" bindinput="onField" />
-    </view>
-    <view class="field">
-      <text class="label">标签（逗号分隔）</text>
-      <input class="input" value="{{form.tags}}" data-field="tags" bindinput="onField" placeholder="名词, 高频" />
+    <view class="btn btn-primary" bindtap="onPickImage">{{ocrBusy ? '识别中…' : '拍照 / 选择图片'}}</view>
+
+    <view wx:if="{{ocrTip}}" class="notice">{{ocrTip}}</view>
+
+    <view wx:if="{{!ocrConfigured}}" class="notice faint">
+      小程序内无法运行 Tesseract.js（无 WASM/Worker 且包体受限），OCR 需服务端接口：
+      在 miniprogram/config.ts 配置 ocrEndpoint。未配置时请先用「手动录入」。
     </view>
 
-    <view class="btn btn-primary save-btn" bindtap="onSave">{{editId ? '保存修改' : '保存'}}</view>
+    <view wx:if="{{drafts.length}}" class="drafts">
+      <view class="row summary">
+        <text class="faint tiny">已选 {{drafts.length}} 行，标黄行置信度较低请重点校对</text>
+      </view>
+      <view wx:for="{{drafts}}" wx:key="index" class="draft-row {{item.low ? 'draft-low' : ''}}">
+        <switch checked="{{item.selected}}" data-index="{{index}}" bindchange="onDraftToggle" color="#d4321f" />
+        <input class="input draft-input" value="{{item.ru}}" data-index="{{index}}" data-field="ru" bindinput="onDraftField" />
+        <input class="input draft-input" value="{{item.zh}}" placeholder="释义" data-index="{{index}}" data-field="zh" bindinput="onDraftField" />
+      </view>
+      <view class="row actions">
+        <view class="btn btn-sm" bindtap="onOcrAiEnrich">AI 补全选中项</view>
+        <view class="spacer" />
+        <view class="btn btn-primary btn-sm" bindtap="onOcrSubmit">批量入库</view>
+      </view>
+    </view>
   </view>
 
-  <!-- 批量粘贴 -->
+  <!-- 2. 手动录入（AI 补全） -->
   <view wx:elif="{{tabIndex === 1}}" class="card">
+    <block wx:if="{{editId}}">
+      <text class="micro label">编辑词条</text>
+      <input class="input" value="{{form.ru}}" data-field="ru" bindinput="onField" placeholder="俄语原文" />
+      <input class="input" value="{{form.zh}}" data-field="zh" bindinput="onField" placeholder="中文释义" />
+      <input class="input" value="{{form.pos}}" data-field="pos" bindinput="onField" placeholder="词性" />
+      <input class="input" value="{{form.stress}}" data-field="stress" bindinput="onField" placeholder="重音" />
+      <input class="input" value="{{form.forms}}" data-field="forms" bindinput="onField" placeholder="变位 / 变格" />
+      <input class="input" value="{{form.example}}" data-field="example" bindinput="onField" placeholder="例句" />
+      <input class="input" value="{{form.tags}}" data-field="tags" bindinput="onField" placeholder="标签（逗号分隔）" />
+      <view class="btn btn-primary save-btn" bindtap="onSaveEdit">保存修改</view>
+    </block>
+
+    <block wx:else>
+      <text class="micro label">俄语单词（多个用换行或逗号分隔）</text>
+      <textarea
+        class="textarea short"
+        value="{{aiText}}"
+        data-field="ai"
+        bindinput="onAiText"
+        placeholder="дом&#10;изучать, книга"
+      />
+
+      <view wx:if="{{!aiConfigured}}" class="notice">
+        尚未配置 API Key。
+        <text class="link" bindtap="onGoSettings">前往 AI 设置</text>
+      </view>
+      <view wx:elif="{{aiTip}}" class="notice">{{aiTip}}</view>
+
+      <view class="row actions">
+        <text class="faint tiny">{{aiWordCount}} word(s)</text>
+        <view class="spacer" />
+        <view class="btn btn-sm btn-ghost" bindtap="onAiSavePlain">仅存原文</view>
+        <view class="btn btn-primary btn-sm" bindtap="onAiEnrich">{{aiBusy ? '补全中…' : 'AI 补全'}}</view>
+      </view>
+
+      <view wx:if="{{aiDrafts.length}}" class="drafts">
+        <view class="row summary">
+          <text class="micro">待入库 {{aiDrafts.length}}</text>
+          <view class="spacer" />
+          <view class="btn btn-primary btn-sm" bindtap="onAiSave">全部入库</view>
+        </view>
+
+        <view wx:for="{{aiDrafts}}" wx:key="index" class="ai-draft">
+          <view class="row">
+            <text class="badge">{{item.pos || '—'}}</text>
+            <input class="input draft-ru" value="{{item.ru}}" data-index="{{index}}" data-field="ru" bindinput="onAiDraftField" />
+            <input class="input" value="{{item.zh}}" placeholder="释义" data-index="{{index}}" data-field="zh" bindinput="onAiDraftField" />
+            <view class="btn btn-ghost btn-sm" data-index="{{index}}" bindtap="onAiRemove">×</view>
+          </view>
+          <text wx:if="{{item.stress}}" class="faint tiny">重音 {{item.stress}}</text>
+          <text wx:if="{{item.example}}" class="muted tiny example">{{item.example}}</text>
+          <view class="row tags">
+            <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="badge">{{tag}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 3. 批量粘贴 -->
+  <view wx:else class="card">
     <textarea
       class="textarea"
       value="{{bulkText}}"
@@ -53,7 +108,7 @@
       placeholder="每行一条，支持 - / = / , / Tab 分隔释义"
     />
     <view class="row summary">
-      <text class="faint">已解析 {{bulkCount}} 条</text>
+      <text class="faint tiny">已解析 {{bulkCount}} 条</text>
       <view class="spacer" />
       <view class="chip" bindtap="onFillSample">填入示例</view>
       <view class="btn btn-primary btn-sm" bindtap="onBulkSubmit">批量入库</view>
@@ -64,43 +119,6 @@
         <text class="title-ru preview-ru">{{item.ru}}</text>
         <text class="muted">{{item.zh}}</text>
       </view>
-    </view>
-  </view>
-
-  <!-- 拍照 OCR -->
-  <view wx:else class="card">
-    <view class="btn btn-primary" bindtap="onPickImage">{{ocrBusy ? '识别中…' : '拍照 / 选择图片'}}</view>
-
-    <view wx:if="{{ocrTip}}" class="tip">{{ocrTip}}</view>
-
-    <view wx:if="{{!ocrConfigured}}" class="tip faint">
-      小程序内无法运行 Tesseract.js（无 WASM/Worker 且包体受限），OCR 需由服务端接口提供：
-      在 miniprogram/config.ts 配置 ocrEndpoint 后即可使用。
-    </view>
-
-    <view wx:if="{{drafts.length}}" class="drafts">
-      <view class="row summary">
-        <text class="faint">已选 {{drafts.length}} 条，标黄行置信度较低请重点校对</text>
-      </view>
-      <view wx:for="{{drafts}}" wx:key="index" class="draft-row {{item.low ? 'draft-low' : ''}}">
-        <switch checked="{{item.selected}}" data-index="{{index}}" bindchange="onDraftToggle" color="#4f8cff" />
-        <input
-          class="input draft-input"
-          value="{{item.ru}}"
-          data-index="{{index}}"
-          data-field="ru"
-          bindinput="onDraftField"
-        />
-        <input
-          class="input draft-input"
-          value="{{item.zh}}"
-          placeholder="释义（可选）"
-          data-index="{{index}}"
-          data-field="zh"
-          bindinput="onDraftField"
-        />
-      </view>
-      <view class="btn btn-primary save-btn" bindtap="onOcrSubmit">批量入库</view>
     </view>
   </view>
 </view>
