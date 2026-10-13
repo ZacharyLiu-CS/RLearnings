@@ -1,0 +1,35 @@
+{
+  "name": "russian-learning",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "俄语学习平台 · 模块化 Web App（M1 单词记忆首发）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:budget": "node scripts/check-budget.mjs",
+    "sync:tesseract": "node scripts/sync-tesseract-assets.mjs",
+    "postinstall": "node scripts/sync-tesseract-assets.mjs"
+  },
+  "dependencies": {
+    "dexie": "^4.0.11",
+    "pinia": "^2.3.1",
+    "tesseract.js": "^5.1.1",
+    "tesseract.js-core": "^5.1.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "fake-indexeddb": "^6.2.5",
+    "typescript": "~5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.2.7",
+    "vue-tsc": "^2.2.0"
+  }
+}

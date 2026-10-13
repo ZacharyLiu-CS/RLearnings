@@ -1,0 +1,13 @@
+node_modules
+dist
+# tesseract wasm core 由 scripts/sync-tesseract-assets.mjs 从 node_modules 复制生成
+public/tesseract-core
+dist-ssr
+.DS_Store
+*.local
+.vite
+coverage
+*.log
+.env
+.env.*
+!.env.example
