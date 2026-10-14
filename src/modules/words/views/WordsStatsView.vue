@@ -2,10 +2,39 @@
 import { computed, onMounted, ref } from 'vue'
 import { useWordsStore } from '../store'
 import { usePlatformStore } from '@/core/stores/platform'
+import { dayKey } from '@/core/utils/date'
+import RingProgress from '@/ui/components/RingProgress.vue'
 
 const store = useWordsStore()
 const platform = usePlatformStore()
 const fileRef = ref<HTMLInputElement | null>(null)
+
+/** 每日复习目标（张），用于圆环进度 */
+const DAILY_GOAL = 20
+
+const todayCount = computed(
+  () => store.reviewLogs.filter((log) => dayKey(log.at) === dayKey()).length,
+)
+const masteredPct = computed(() => {
+  const total = store.stats?.total ?? 0
+  if (!total) return 0
+  return Math.round(((store.stats?.byStatus.mastered ?? 0) / total) * 100)
+})
+
+/** Apple 三环：今日复习 / 连续打卡 / 掌握率 */
+const rings = computed(() => [
+  {
+    progress: Math.min(1, todayCount.value / DAILY_GOAL),
+    from: 'var(--accent)',
+    to: '#ff9500',
+  },
+  { progress: Math.min(1, store.streak / 7), from: '#1a4cd0', to: '#4f8cff' },
+  {
+    progress: (store.stats?.byStatus.mastered ?? 0) / Math.max(1, store.stats?.total ?? 1),
+    from: '#0f6b4f',
+    to: '#3ecf8e',
+  },
+])
 
 const STATUS_ROWS = [
   { key: 'new', label: '新学', color: '#9db8ff' },
@@ -51,6 +80,30 @@ onMounted(() => void store.loadStats())
       <div class="card metric">
         <span class="faint">连续打卡</span>
         <strong>{{ store.streak }} 天</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin: 0 0 14px; font-size: 15px">今日圆环</h3>
+      <div class="ring-row">
+        <RingProgress :rings="rings" :size="152" :thickness="12" :gap="4">
+          <strong class="ring-value">{{ todayCount }}</strong>
+          <span class="micro">/ {{ DAILY_GOAL }} 张</span>
+        </RingProgress>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="dot dot-a" />
+            <span class="muted">今日复习 {{ todayCount }} / {{ DAILY_GOAL }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot dot-b" />
+            <span class="muted">连续打卡 {{ store.streak }} / 7 天</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot dot-c" />
+            <span class="muted">掌握率 {{ masteredPct }}%</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -120,6 +173,53 @@ onMounted(() => void store.loadStats())
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+}
+
+.ring-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.ring-value {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.dot-a {
+  background: var(--accent);
+}
+
+.dot-b {
+  background: #1a4cd0;
+}
+
+.dot-c {
+  background: #0f6b4f;
 }
 
 .metric {

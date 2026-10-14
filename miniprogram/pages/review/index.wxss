@@ -1,13 +1,51 @@
+.ring-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0 16rpx;
+}
+
+.center-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.ring-value {
+  font-size: 60rpx;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.ring-check {
+  font-size: 52rpx;
+  color: #0f6b4f;
+  line-height: 1;
+}
+
+.ring-legend {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.legend-value {
+  font-size: 24rpx;
+}
+
 .summary {
-  margin-bottom: 16rpx;
+  margin-bottom: 8rpx;
 }
 
 .flashcard {
-  margin-top: 32rpx;
+  margin-top: 24rpx;
   min-height: 520rpx;
-  border-radius: 28rpx;
-  border: 1rpx solid var(--border);
-  background: var(--bg-elevated);
+  border-radius: 8rpx;
+  border: 1rpx solid var(--line);
+  background: var(--paper);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,27 +103,40 @@
 }
 
 .rate-danger {
-  border-color: rgba(255, 92, 92, 0.4);
+  border-color: rgba(212, 50, 31, 0.5);
 }
 
 .rate-warn {
-  border-color: rgba(255, 176, 32, 0.4);
+  border-color: rgba(163, 90, 0, 0.5);
 }
 
 .rate-success {
-  border-color: rgba(62, 207, 142, 0.4);
+  border-color: rgba(15, 107, 79, 0.5);
 }
 
-.finish {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20rpx;
-  margin-top: 120rpx;
+.reward {
+  border-left: 6rpx solid #0f6b4f;
 }
 
-.finish-title {
-  font-size: 36rpx;
+.reward-head {
+  gap: 12rpx;
+}
+
+.reward-check {
+  color: #0f6b4f;
+  font-size: 32rpx;
+}
+
+.reward-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f6b4f;
+}
+
+.reward-text {
+  display: block;
+  font-size: 26rpx;
+  margin: 12rpx 0 24rpx;
 }
 
 .empty {

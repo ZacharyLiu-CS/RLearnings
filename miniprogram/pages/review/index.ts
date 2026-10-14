@@ -1,10 +1,10 @@
 /**
  * 复习页：使用与 Web 端完全相同的 SRS 调度器（shared/srs）。
- * 小程序没有键盘事件，交互改为点击卡片翻面 + 三档按钮评分。
+ * 进度用 Apple 运动圆环呈现，满环时给出震动 + 奖励卡片。
  */
 import { repository } from '../../core/storage'
 import { srs } from '../../shared/srs'
-import { isoNow } from '../../shared/utils/date'
+import { addDaysIso, calcStreak, dayKey, isoNow } from '../../shared/utils/date'
 import type { LearningItem, Rating } from '../../shared/types'
 
 const LIMIT = 80
@@ -41,10 +41,13 @@ Page({
     flipped: false,
     remaining: 0,
     total: 0,
+    /** 圆环进度 0 - 1 */
     progress: 0,
+    percent: 0,
     graded: 0,
     finished: false,
     loading: true,
+    streak: 0,
   },
 
   onShow() {
@@ -53,25 +56,40 @@ Page({
 
   async load() {
     this.setData({ loading: true })
-    const items = await repository.due(isoNow(), LIMIT)
+    const [items, logs] = await Promise.all([
+      repository.due(isoNow(), LIMIT),
+      repository.reviewStats(addDaysIso(new Date(), -60)),
+    ])
     queue = items.sort(() => Math.random() - 0.5)
     index = 0
     graded = 0
-    this.setData({ total: queue.length, finished: false, graded: 0, loading: false })
+    this.setData({
+      total: queue.length,
+      finished: false,
+      graded: 0,
+      loading: false,
+      streak: calcStreak(new Set(logs.map((log) => dayKey(log.at)))),
+    })
     this.render()
   },
 
   render() {
     const item = queue[index]
-    if (!item) {
-      this.setData({ card: null, finished: true, remaining: 0, progress: 100 })
-      return
+    const progress = queue.length ? Math.min(1, index / queue.length) : 0
+    const finished = !item && queue.length > 0
+
+    if (finished && !this.data.finished) {
+      // 满环：给一次明确的触感反馈
+      wx.vibrateShort({ type: 'heavy', fail: () => undefined })
     }
+
     this.setData({
-      card: toCard(item),
+      card: item ? toCard(item) : null,
       flipped: false,
       remaining: queue.length - index,
-      progress: Math.round((index / Math.max(1, queue.length)) * 100),
+      progress,
+      percent: Math.round(progress * 100),
+      finished,
     })
   },
 
@@ -91,7 +109,7 @@ Page({
     index += 1
     graded += 1
 
-    // 先更新界面，再落库；失败不影响继续复习
+    // 先更新界面（圆环立即前进），再落库
     this.setData({ graded })
     this.render()
     await repository.patch(item.id, { srs: next })

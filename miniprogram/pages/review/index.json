@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "复习",
-  "usingComponents": {}
+  "usingComponents": {
+    "review-ring": "/components/review-ring/index"
+  }
 }

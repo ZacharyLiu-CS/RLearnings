@@ -7,15 +7,19 @@ import type { Rating } from '@/core/types'
 import FlashCard from '../components/FlashCard.vue'
 import SkeletonRows from '@/ui/components/SkeletonRows.vue'
 import EmptyState from '@/ui/components/EmptyState.vue'
+import RingProgress from '@/ui/components/RingProgress.vue'
+import AppIcon from '@/ui/components/AppIcon.vue'
 
 const store = useWordsStore()
 const router = useRouter()
 const flipped = ref(false)
 const scope = ref<NonNullable<ItemQuery['type']>>('all')
 
-const progress = computed(() =>
+/** 本组完成度：用于圆环进度 */
+const ratio = computed(() =>
   store.queue.length ? Math.min(1, store.queueIndex / store.queue.length) : 0,
 )
+const percent = computed(() => Math.round(ratio.value * 100))
 
 const RATINGS: Array<{ key: Rating; label: string; hint: string; tone: string }> = [
   { key: 'unknown', label: '不认识', hint: '1', tone: 'danger' },
@@ -50,13 +54,22 @@ function onKeydown(event: KeyboardEvent) {
 function reload() {
   flipped.value = false
   void store.loadDue(80, scope.value)
+  void store.loadStats()
 }
 
 watch(scope, reload)
 watch(() => store.current?.id, () => (flipped.value = false))
+// 满环后刷新统计，让奖励卡片显示最新的连续打卡天数
+watch(
+  () => store.finished,
+  (finished) => {
+    if (finished) void store.loadStats()
+  },
+)
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
+  void store.loadStats()
   if (!store.queue.length) void store.loadDue(80, scope.value)
 })
 
@@ -71,27 +84,54 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <option value="word">仅单词</option>
         <option value="sentence">仅句子</option>
       </select>
-      <div class="progress">
-        <div class="progress-fill" :style="{ transform: `scaleX(${progress})` }" />
-      </div>
-      <span class="faint">剩余 {{ store.remaining }}</span>
+      <div class="spacer" />
+      <span class="faint micro">{{ percent }}% · 剩余 {{ store.remaining }}</span>
       <button class="btn btn-ghost" type="button" @click="reload">换一组</button>
+    </div>
+
+    <div class="ring-area">
+      <div class="ring-wrap">
+        <RingProgress :progress="ratio" :complete="store.finished" :size="148">
+          <template v-if="store.finished">
+            <span class="ring-check"><AppIcon name="check" :size="30" /></span>
+            <span class="micro">满环</span>
+          </template>
+          <template v-else>
+            <strong class="ring-value">{{ store.remaining }}</strong>
+            <span class="micro">待复习</span>
+          </template>
+        </RingProgress>
+
+        <!-- 满环奖励：一次性的粒子迸发 -->
+        <div v-if="store.finished" class="burst" aria-hidden="true">
+          <span v-for="i in 10" :key="i" :style="{ '--a': `${(i - 1) * 36}deg`, 'animation-delay': `${i * 30}ms` }" />
+        </div>
+      </div>
+
+      <div class="ring-legend">
+        <span class="micro">本组进度</span>
+        <span class="muted legend-value">{{ store.graded }} / {{ store.queue.length || 0 }} 张</span>
+      </div>
     </div>
 
     <SkeletonRows v-if="store.loading" :rows="1" :height="320" />
 
-    <template v-else-if="store.finished">
-      <div class="card finish">
-        <h2 style="margin: 0 0 6px">本组完成 🎉</h2>
-        <p class="muted" style="margin: 0 0 16px">已完成 {{ store.graded }} 次评分，数据已写入本地。</p>
-        <div class="row" style="justify-content: center">
-          <button class="btn btn-primary" type="button" @click="reload">再来一组</button>
-          <button class="btn" type="button" @click="router.push({ name: 'words-library' })">
-            回到词库
-          </button>
-        </div>
+    <div v-else-if="store.finished" class="card reward">
+      <div class="row reward-head">
+        <AppIcon name="check" :size="18" />
+        <strong>满环达成</strong>
+        <span class="badge badge-mastered">+{{ store.graded }} 张</span>
       </div>
-    </template>
+      <p class="muted reward-text">
+        本组 {{ store.graded }} 张卡片已完成，连续打卡 {{ store.streak }} 天。复习记录已写入本地。
+      </p>
+      <div class="row">
+        <button class="btn btn-primary" type="button" @click="reload">再来一组</button>
+        <button class="btn" type="button" @click="router.push({ name: 'words-library' })">
+          回到词库
+        </button>
+      </div>
+    </div>
 
     <EmptyState
       v-else-if="!store.current"
@@ -130,6 +170,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   gap: 16px;
   flex: 1;
   min-height: 0;
+  overflow: auto;
+  padding-bottom: 20px;
 }
 
 .bar {
@@ -138,24 +180,84 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   gap: 12px;
 }
 
-.progress {
-  flex: 1;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--bg-soft);
-  overflow: hidden;
+.ring-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 8px;
 }
 
-.progress-fill {
-  height: 100%;
+.ring-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.ring-value {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.ring-check {
+  color: #0f6b4f;
+  display: grid;
+  place-items: center;
+}
+
+.ring-legend {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.legend-value {
+  font-size: 13px;
+}
+
+.burst {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.burst span {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: var(--accent);
-  transform-origin: left center;
-  transition: transform 0.2s ease;
+  opacity: 0;
+  animation: burst-out 0.75s cubic-bezier(0.16, 0.84, 0.44, 1) forwards;
 }
 
-.finish {
-  text-align: center;
-  margin: auto 0;
+@keyframes burst-out {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateY(-46px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(-96px) scale(0.4);
+  }
+}
+
+.reward {
+  border-left: 3px solid #0f6b4f;
+}
+
+.reward-head {
+  gap: 10px;
+  color: #0f6b4f;
+}
+
+.reward-text {
+  font-size: 13px;
+  margin: 10px 0 16px;
 }
 
 .ratings {
@@ -174,17 +276,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(17, 17, 17, 0.08);
 }
 
 .rate-danger {
-  border-color: rgba(255, 92, 92, 0.4);
+  border-color: rgba(212, 50, 31, 0.5);
 }
 .rate-warn {
-  border-color: rgba(255, 176, 32, 0.4);
+  border-color: rgba(163, 90, 0, 0.5);
 }
 .rate-success {
-  border-color: rgba(62, 207, 142, 0.4);
+  border-color: rgba(15, 107, 79, 0.5);
 }
 
 .hint-line {

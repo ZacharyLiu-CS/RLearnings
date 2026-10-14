@@ -1,19 +1,38 @@
 <view class="page">
+  <!-- 圆环进度 -->
+  <view class="ring-area">
+    <review-ring progress="{{progress}}" complete="{{finished}}" size="{{150}}" thickness="{{12}}">
+      <view wx:if="{{finished}}" class="center-inner">
+        <text class="ring-check">✓</text>
+        <text class="micro">满环</text>
+      </view>
+      <view wx:else class="center-inner">
+        <text class="ring-value">{{remaining}}</text>
+        <text class="micro">待复习</text>
+      </view>
+    </review-ring>
+    <view class="ring-legend">
+      <text class="micro">本组进度</text>
+      <text class="muted legend-value">{{percent}}% · {{graded}} / {{total}} 张</text>
+    </view>
+  </view>
+
   <view class="row summary">
-    <text class="faint">剩余 {{remaining}} / 共 {{total}}</text>
     <view class="spacer" />
     <view class="chip" bindtap="onReload">换一组</view>
   </view>
 
-  <view class="progress">
-    <view class="progress-fill" style="width: {{progress}}%" />
-  </view>
-
   <view wx:if="{{loading}}" class="empty faint">加载中…</view>
 
-  <view wx:elif="{{finished}}" class="card finish">
-    <text class="finish-title">本组完成 🎉</text>
-    <text class="muted">已完成 {{graded}} 次评分，数据已写入本地。</text>
+  <view wx:elif="{{finished}}" class="card reward">
+    <view class="row reward-head">
+      <text class="reward-check">✓</text>
+      <text class="reward-title">满环达成</text>
+      <text class="badge badge-mastered">+{{graded}} 张</text>
+    </view>
+    <text class="muted reward-text">
+      本组 {{graded}} 张卡片已完成，连续打卡 {{streak}} 天。复习记录已写入本地。
+    </text>
     <view class="btn btn-primary" bindtap="onReload">再来一组</view>
     <view class="btn btn-ghost" bindtap="onGoLibrary">回到词库</view>
   </view>
