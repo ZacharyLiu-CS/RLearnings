@@ -56,9 +56,12 @@ const title = computed(() => (route.meta.title as string | undefined) ?? '俄语
       </div>
 
       <main class="content">
-        <RouterView v-slot="{ Component }">
+        <RouterView v-slot="{ Component, route }">
           <ModuleBoundary>
-            <component :is="Component" />
+            <!-- 页面切换：淡入上移 / 淡出微移，进出场曲线分离 -->
+            <Transition name="route" mode="out-in">
+              <component :is="Component" :key="String(route.name)" />
+            </Transition>
           </ModuleBoundary>
         </RouterView>
       </main>

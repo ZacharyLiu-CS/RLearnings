@@ -137,7 +137,8 @@ function isEmpty(index: number): boolean {
 }
 
 .bar {
-  transition: stroke-dashoffset 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* 环前进是「位移类」动效：页面级时长 + ease-out 收敛 */
+  transition: stroke-dashoffset var(--dur-4) var(--ease-out);
 }
 
 .bar.is-empty {
@@ -158,7 +159,7 @@ function isEmpty(index: number): boolean {
 /* 满环：发光 + 一次脉冲，给用户明确的正反馈 */
 .is-complete svg {
   filter: drop-shadow(0 0 10px rgba(15, 107, 79, 0.35));
-  animation: ring-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: ring-pop var(--dur-4) var(--spring);
 }
 
 @keyframes ring-pop {

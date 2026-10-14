@@ -8,6 +8,7 @@ import FlashCard from '../components/FlashCard.vue'
 import SkeletonRows from '@/ui/components/SkeletonRows.vue'
 import EmptyState from '@/ui/components/EmptyState.vue'
 import RingProgress from '@/ui/components/RingProgress.vue'
+import TextReveal from '@/ui/components/TextReveal.vue'
 import AppIcon from '@/ui/components/AppIcon.vue'
 
 const store = useWordsStore()
@@ -97,7 +98,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <span class="micro">满环</span>
           </template>
           <template v-else>
-            <strong class="ring-value">{{ store.remaining }}</strong>
+            <!-- 数字切换：上推替换，走 spring 曲线 -->
+            <Transition name="num" mode="out-in">
+              <strong :key="store.remaining" class="ring-value">{{ store.remaining }}</strong>
+            </Transition>
             <span class="micro">待复习</span>
           </template>
         </RingProgress>
@@ -116,10 +120,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
     <SkeletonRows v-if="store.loading" :rows="1" :height="320" />
 
-    <div v-else-if="store.finished" class="card reward">
+    <div v-else-if="store.finished" class="card reward enter-up-delayed">
       <div class="row reward-head">
         <AppIcon name="check" :size="18" />
-        <strong>满环达成</strong>
+        <strong><TextReveal text="满环达成" mode="ink" :stagger="46" /></strong>
         <span class="badge badge-mastered">+{{ store.graded }} 张</span>
       </div>
       <p class="muted reward-text">
@@ -142,7 +146,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     />
 
     <template v-else>
-      <FlashCard :item="store.current" :flipped="flipped" @flip="flip" />
+      <div :key="store.current?.id ?? 'none'" class="card-enter">
+        <FlashCard :item="store.current" :flipped="flipped" @flip="flip" />
+      </div>
 
       <div class="ratings">
         <button
@@ -232,17 +238,37 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   border-radius: 50%;
   background: var(--accent);
   opacity: 0;
-  animation: burst-out 0.75s cubic-bezier(0.16, 0.84, 0.44, 1) forwards;
+  /* 迸发是一次性强调动效：ease-out 减速 + 轻缩放收敛 */
+  animation: burst-out var(--dur-4) var(--ease-out) forwards;
 }
 
 @keyframes burst-out {
   0% {
     opacity: 1;
-    transform: rotate(var(--a)) translateY(-46px) scale(1);
+    transform: rotate(var(--a)) translateY(-46px) scale(0.6);
+  }
+  35% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateY(-70px) scale(1);
   }
   100% {
     opacity: 0;
-    transform: rotate(var(--a)) translateY(-96px) scale(0.4);
+    transform: rotate(var(--a)) translateY(-102px) scale(0.4);
+  }
+}
+
+.card-enter {
+  animation: card-enter var(--dur-3) var(--ease-out) both;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

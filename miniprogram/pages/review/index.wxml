@@ -7,7 +7,8 @@
         <text class="micro">满环</text>
       </view>
       <view wx:else class="center-inner">
-        <text class="ring-value">{{remaining}}</text>
+        <!-- a/b 类名交替：数字变化时重播上推动画 -->
+        <text class="ring-value num-{{tick % 2 === 0 ? 'a' : 'b'}}">{{remaining}}</text>
         <text class="micro">待复习</text>
       </view>
     </review-ring>
@@ -43,15 +44,22 @@
   </view>
 
   <block wx:else>
-    <view class="flashcard" bindtap="onFlip">
-      <view wx:if="{{!flipped}}" class="face">
-        <text class="title-ru flash-ru">{{card.ru}}</text>
-        <text wx:if="{{card.stress}}" class="faint">{{card.stress}}</text>
+    <view class="flashcard card-{{tick % 2 === 0 ? 'a' : 'b'}}" bindtap="onFlip">
+      <view wx:if="{{!flipped}}" class="face face-in">
+        <view class="title-ru flash-ru">
+          <text
+            wx:for="{{card.ruTokens}}"
+            wx:key="index"
+            class="reveal-token"
+            style="animation-delay: {{index * 44}}ms"
+          >{{item}}</text>
+        </view>
+        <text wx:if="{{card.stress}}" class="faint face-in">{{card.stress}}</text>
         <text class="faint hint">点击翻面</text>
       </view>
-      <view wx:else class="face">
-        <text class="title-ru flash-ru-small">{{card.ru}}</text>
-        <text class="flash-zh">{{card.zh}}</text>
+      <view wx:else class="face face-in">
+        <text class="title-ru flash-ru-small face-in">{{card.ru}}</text>
+        <text class="flash-zh face-in">{{card.zh}}</text>
         <text wx:if="{{card.forms}}" class="muted small">{{card.forms}}</text>
         <text wx:if="{{card.example}}" class="muted small italic">{{card.example}}</text>
         <view class="row tags">
@@ -61,9 +69,9 @@
     </view>
 
     <view class="ratings">
-      <view class="btn rate rate-danger" bindtap="onUnknown">不认识</view>
-      <view class="btn rate rate-warn" bindtap="onFuzzy">模糊</view>
-      <view class="btn rate rate-success" bindtap="onKnown">认识</view>
+      <view class="btn rate rate-danger" hover-class="btn-hover" hover-stay-time="80" bindtap="onUnknown">不认识</view>
+      <view class="btn rate rate-warn" hover-class="btn-hover" hover-stay-time="80" bindtap="onFuzzy">模糊</view>
+      <view class="btn rate rate-success" hover-class="btn-hover" hover-stay-time="80" bindtap="onKnown">认识</view>
     </view>
   </block>
 </view>

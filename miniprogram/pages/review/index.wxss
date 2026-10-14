@@ -64,6 +64,17 @@
 
 .flash-ru {
   font-size: 64rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.reveal-token {
+  margin-right: 8rpx;
+}
+
+.reveal-token:last-child {
+  margin-right: 0;
 }
 
 .flash-ru-small {

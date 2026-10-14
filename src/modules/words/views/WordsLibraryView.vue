@@ -88,7 +88,7 @@ function saveEdit(patch: Partial<LearningItem>) {
 
     <SkeletonRows v-if="store.loading && !store.items.length" :rows="8" :height="64" />
 
-    <VirtualList v-else :items="store.items" :item-height="72">
+    <VirtualList v-else class="enter-up" :items="store.items" :item-height="72">
       <template #default="{ item }">
         <WordRow
           :item="item"

@@ -1,0 +1,115 @@
+/* ============================================================
+   动效系统（对齐 Apple HIG 的动效原则）
+   - 目的明确：动效只用于说明「从哪来、到哪去」，不做装饰性炫技
+   - 曲线规范：进入 ease-out（先快后缓），退出 ease-in（先缓后快），
+     反馈类用轻微回弹（spring），不使用线性或弹跳过度的曲线
+   - 时长规范：微交互 120ms / 元素级 200ms / 卡片级 320ms / 页面与强调 480ms
+   - 一致性：同类元素共用同一条曲线与时长
+   - 无障碍：跟随系统「减弱动态效果」自动降级
+   ============================================================ */
+
+:root {
+  --dur-1: 120ms; /* 按压、hover、数字切换 */
+  --dur-2: 200ms; /* 淡入淡出、小元素位移 */
+  --dur-3: 320ms; /* 卡片翻面、列表入场 */
+  --dur-4: 480ms; /* 页面切换、强调型出现 */
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 进入：快速起步、缓慢收敛 */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* 退出：缓慢起步、快速离场 */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* 位移对称型 */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 反馈：轻微回弹 */
+}
+
+/* ---------- 通用入场：上移淡入 ---------- */
+.enter-up {
+  animation: enter-up var(--dur-3) var(--ease-out) both;
+}
+
+.enter-up-delayed {
+  animation: enter-up var(--dur-4) var(--ease-out) 80ms both;
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 路由切换：淡入上移 / 淡出微移 ---------- */
+.route-enter-active {
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+
+.route-leave-active {
+  transition:
+    opacity var(--dur-1) var(--ease-in),
+    transform var(--dur-1) var(--ease-in);
+}
+
+.route-enter-from {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+
+.route-leave-to {
+  opacity: 0;
+  transform: translate3d(0, -4px, 0);
+}
+
+/* ---------- 数字切换：上推替换 ---------- */
+.num-enter-active {
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--spring);
+}
+
+.num-leave-active {
+  transition:
+    opacity var(--dur-1) var(--ease-in),
+    transform var(--dur-1) var(--ease-in);
+}
+
+.num-enter-from {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0) scale(0.94);
+}
+
+.num-leave-to {
+  opacity: 0;
+  transform: translate3d(0, -6px, 0) scale(0.98);
+}
+
+/* ---------- 按压反馈 ---------- */
+.press {
+  transition: transform var(--dur-1) var(--ease-out);
+}
+
+.press:active {
+  transform: scale(0.98);
+}
+
+/* ---------- 减弱动态效果（跟随系统设置） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .enter-up,
+  .enter-up-delayed {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

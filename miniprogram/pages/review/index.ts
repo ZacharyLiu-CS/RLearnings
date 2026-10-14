@@ -12,6 +12,8 @@ const LIMIT = 80
 interface Card {
   id: string
   ru: string
+  /** 俄文按词拆分，用于逐词晕染 */
+  ruTokens: string[]
   stress: string
   zh: string
   forms: string
@@ -27,6 +29,7 @@ function toCard(item: LearningItem): Card {
   return {
     id: item.id,
     ru: item.ru,
+    ruTokens: item.ru.split(/\s+/).filter(Boolean),
     stress: item.stress ?? '',
     zh: item.zh ?? '（暂无释义）',
     forms: item.forms ?? '',
@@ -48,6 +51,8 @@ Page({
     finished: false,
     loading: true,
     streak: 0,
+    /** 用于通过 a/b 类名交替重播入场动画 */
+    tick: 0,
   },
 
   onShow() {
@@ -90,6 +95,7 @@ Page({
       progress,
       percent: Math.round(progress * 100),
       finished,
+      tick: this.data.tick + 1,
     })
   },
 

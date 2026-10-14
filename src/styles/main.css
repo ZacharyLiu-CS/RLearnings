@@ -225,7 +225,10 @@ a {
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
-  transition: background 0.12s linear, color 0.12s linear;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
 }
 
 .btn:hover {
@@ -233,7 +236,7 @@ a {
 }
 
 .btn:active {
-  transform: none;
+  transform: scale(0.98);
 }
 
 .btn-primary {
@@ -435,7 +438,19 @@ a {
   color: #fff;
   font-size: 13px;
   border-radius: 2px;
-  animation: toast-in 0.16s ease-out;
+  /* 从下方浮入，带轻微回弹收敛 */
+  animation: toast-in var(--dur-3) var(--spring) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .toast-success {
@@ -448,16 +463,7 @@ a {
   background: var(--accent);
 }
 
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+
 
 /* ---------- 移动端 ---------- */
 .mobile-only {

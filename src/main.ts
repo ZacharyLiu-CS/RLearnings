@@ -10,6 +10,7 @@ import { usePlatformStore } from '@/core/stores/platform'
 import { bus } from '@/core/event-bus'
 import { startVitals } from '@/core/perf/vitals'
 import '@/styles/main.css'
+import '@/styles/motion.css'
 
 async function bootstrap() {
   const app = createApp(App)
