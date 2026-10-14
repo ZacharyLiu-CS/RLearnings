@@ -93,6 +93,8 @@ miniprogram/  原生微信小程序（同一套数据模型与 SRS 调度）
 
 ## 小程序端（原生）怎么用
 
+> 发布上线请看 **[docs/小程序发布指南.md](./docs/小程序发布指南.md)**（AppID、ICP 备案、服务器域名、隐私保护指引、提审材料与常见驳回对策）。
+
 1. 打开 **微信开发者工具** → 导入项目 → 目录选 `miniprogram/`；
 2. 把 `miniprogram/project.config.json` 里的 `appid` 换成你自己的小程序 AppID（现在是 `touristappid` 游客模式）；
 3. 勾选「使用 npm 模块 / TypeScript 编译」无需额外操作，`project.config.json` 已开启 `useCompilerPlugins: ["typescript"]`；
