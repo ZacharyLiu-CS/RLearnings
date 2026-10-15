@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:budget": "node scripts/check-budget.mjs",
+    "icons": "node scripts/generate-icons.mjs",
     "sync:tesseract": "node scripts/sync-tesseract-assets.mjs",
     "sync:shared": "node scripts/sync-shared.mjs",
     "postinstall": "node scripts/sync-tesseract-assets.mjs"
@@ -30,6 +31,7 @@
     "@types/wechat-miniprogram": "^3.4.10",
     "@vitejs/plugin-vue": "^5.2.1",
     "fake-indexeddb": "^6.2.5",
+    "playwright-core": "^1.64.1",
     "typescript": "~5.7.3",
     "vite": "^6.1.0",
     "vitest": "^3.2.7",

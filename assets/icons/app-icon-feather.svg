@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#d4321f"/>
+  <g transform="translate(0 -12)">
+    <path fill="#ffffff" d="M512 168 C648 288 668 512 528 792 L496 792 C356 512 376 288 512 168 Z"/>
+    <rect x="502" y="700" width="20" height="180" rx="10" fill="#ffffff"/>
+    <g stroke="#d4321f" stroke-width="13" stroke-linecap="round" fill="none">
+    <path d="M498 330 L424 398"/>
+    <path d="M498 430 L402 508"/>
+    <path d="M498 530 L424 612"/>
+    <path d="M526 330 L600 398"/>
+    <path d="M526 430 L622 508"/>
+    <path d="M526 530 L600 612"/>
+    </g>
+  </g>
+</svg>
