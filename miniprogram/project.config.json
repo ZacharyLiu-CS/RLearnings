@@ -2,7 +2,7 @@
   "description": "俄语学习平台（原生小程序）",
   "compileType": "miniprogram",
   "miniprogramRoot": "./",
-  "appid": "touristappid",
+  "appid": "wx9ab0f24f6f49e786",
   "projectname": "russian-learning",
   "libVersion": "3.5.0",
   "setting": {

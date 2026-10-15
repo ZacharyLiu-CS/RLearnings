@@ -139,7 +139,7 @@ npm run icons   # 由 SVG 矢量源重新生成全部尺寸（Chrome 直接按�
 > 发布上线请看 **[docs/小程序发布指南.md](./docs/小程序发布指南.md)**（AppID、ICP 备案、服务器域名、隐私保护指引、提审材料与常见驳回对策）。
 
 1. 打开 **微信开发者工具** → 导入项目 → 目录选 `miniprogram/`；
-2. 把 `miniprogram/project.config.json` 里的 `appid` 换成你自己的小程序 AppID（现在是 `touristappid` 游客模式）；
+2. 如需换 AppID，改 `miniprogram/project.config.json` 的 `appid`（当前已填 `wx9ab0f24f6f49e786`）；
 3. 勾选「使用 npm 模块 / TypeScript 编译」无需额外操作，`project.config.json` 已开启 `useCompilerPlugins: ["typescript"]`；
 4. 点击编译即可在模拟器运行；真机调试用开发者工具「预览」。
 
