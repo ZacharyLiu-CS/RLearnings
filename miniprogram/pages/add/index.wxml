@@ -2,23 +2,22 @@
   <view class="tabs">
     <view
       wx:for="{{tabs}}"
-      wx:key="*this"
+      wx:key="key"
       class="tab {{tabIndex === index ? 'tab-active' : ''}}"
       data-index="{{index}}"
       bindtap="onTab"
-    >{{item}}</view>
+    >{{item.label}}</view>
   </view>
 
-  <!-- 1. 拍照 OCR -->
-  <view wx:if="{{tabIndex === 0}}" class="card">
+  <!-- 1. 拍照识别（服务端 OCR 或 AI 视觉模型） -->
+  <view wx:if="{{tabKey === 'ocr'}}" class="card">
     <view class="btn btn-primary" bindtap="onPickImage">{{ocrBusy ? '识别中…' : '拍照 / 选择图片'}}</view>
 
-    <view wx:if="{{ocrTip}}" class="notice">{{ocrTip}}</view>
-
-    <view wx:if="{{!ocrConfigured}}" class="notice faint">
-      小程序内无法运行 Tesseract.js（无 WASM/Worker 且包体受限），OCR 需服务端接口：
-      在 miniprogram/config.ts 配置 ocrEndpoint。未配置时请先用「手动录入」。
+    <view wx:if="{{ocrMode === 'vision'}}" class="notice faint">
+      AI 识别会把图片缩小后处理，密排小字容易出错，入库前请逐行核对（标黄行为低置信）。
     </view>
+
+    <view wx:if="{{ocrTip}}" class="notice">{{ocrTip}}</view>
 
     <view wx:if="{{drafts.length}}" class="drafts">
       <view class="row summary">
@@ -38,7 +37,7 @@
   </view>
 
   <!-- 2. 手动录入（AI 补全） -->
-  <view wx:elif="{{tabIndex === 1}}" class="card">
+  <view wx:elif="{{tabKey === 'manual'}}" class="card">
     <block wx:if="{{editId}}">
       <text class="micro label">编辑词条</text>
       <input class="input" value="{{form.ru}}" data-field="ru" bindinput="onField" placeholder="俄语原文" />
@@ -62,8 +61,9 @@
       />
 
       <view wx:if="{{!aiConfigured}}" class="notice">
-        尚未配置 API Key。
-        <text class="link" bindtap="onGoSettings">前往 AI 设置</text>
+        AI 补全未开启，可先在
+        <text class="link" bindtap="onGoSettings">设置</text>
+        中配置；也可以直接「仅存原文」先保存单词。
       </view>
       <view wx:elif="{{aiTip}}" class="notice">{{aiTip}}</view>
 

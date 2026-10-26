@@ -203,7 +203,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 .ring-value {
   font-size: 34px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
@@ -296,23 +297,41 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   flex-direction: column;
   gap: 2px;
   min-height: 56px;
+  border-color: transparent;
+  font-weight: 600;
 }
 
 .rate kbd {
   font-size: 11px;
   padding: 1px 6px;
-  border-radius: 6px;
-  background: rgba(17, 17, 17, 0.08);
+  border-radius: 5px;
+  background: rgba(17, 17, 17, 0.07);
+  font-family: inherit;
 }
 
+/* iOS tinted 按钮：浅色底 + 语义色文字，按压时底色加深 */
 .rate-danger {
-  border-color: rgba(212, 50, 31, 0.5);
+  color: var(--accent);
+  background: var(--accent-dim);
 }
+.rate-danger:hover {
+  background: rgba(212, 50, 31, 0.16);
+}
+
 .rate-warn {
-  border-color: rgba(163, 90, 0, 0.5);
+  color: var(--warn);
+  background: rgba(163, 90, 0, 0.09);
 }
+.rate-warn:hover {
+  background: rgba(163, 90, 0, 0.16);
+}
+
 .rate-success {
-  border-color: rgba(15, 107, 79, 0.5);
+  color: var(--success);
+  background: rgba(15, 107, 79, 0.09);
+}
+.rate-success:hover {
+  background: rgba(15, 107, 79, 0.16);
 }
 
 .hint-line {

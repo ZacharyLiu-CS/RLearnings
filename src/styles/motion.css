@@ -17,7 +17,10 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 进入：快速起步、缓慢收敛 */
   --ease-in: cubic-bezier(0.4, 0, 1, 1); /* 退出：缓慢起步、快速离场 */
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* 位移对称型 */
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 反馈：轻微回弹 */
+  /* iOS 弹簧：回弹幅度收敛（接近 SwiftUI spring(response:0.35, damping:0.72)） */
+  --spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  /* 强调型弹出：对话框、Toast 入场用，回弹更明显 */
+  --spring-pop: cubic-bezier(0.5, 1.6, 0.5, 1);
 }
 
 /* ---------- 通用入场：上移淡入 ---------- */
@@ -40,7 +43,7 @@
   }
 }
 
-/* ---------- 路由切换：淡入上移 / 淡出微移 ---------- */
+/* ---------- 路由切换：淡入上移微缩放 / 淡出微移 ---------- */
 .route-enter-active {
   transition:
     opacity var(--dur-2) var(--ease-out),
@@ -55,7 +58,7 @@
 
 .route-enter-from {
   opacity: 0;
-  transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, 10px, 0) scale(0.997);
 }
 
 .route-leave-to {
@@ -86,13 +89,42 @@
   transform: translate3d(0, -6px, 0) scale(0.98);
 }
 
-/* ---------- 按压反馈 ---------- */
+/* ---------- 按压反馈：iOS 触控下沉感 ---------- */
 .press {
-  transition: transform var(--dur-1) var(--ease-out);
+  transition: transform var(--dur-1) var(--spring);
 }
 
 .press:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
+}
+
+/* ---------- 对话框/浮层弹出：spring-pop 强调入场 ---------- */
+.pop-in {
+  animation: pop-in var(--dur-3) var(--spring-pop) both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fade-in {
+  animation: fade-in var(--dur-2) var(--ease-out) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ---------- 减弱动态效果（跟随系统设置） ---------- */

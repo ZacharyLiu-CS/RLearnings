@@ -38,7 +38,11 @@ const STATUS_TEXT: Record<LearningItem['srs']['status'], string> = {
     </div>
 
     <div class="word-actions">
-      <button class="icon-btn" :title="props.item.starred ? '取消收藏' : '收藏'" @click="emit('star')">
+      <button
+        :class="['icon-btn', props.item.starred && 'is-starred']"
+        :title="props.item.starred ? '取消收藏' : '收藏'"
+        @click="emit('star')"
+      >
         {{ props.item.starred ? '★' : '☆' }}
       </button>
       <button class="icon-btn" title="编辑" @click="emit('edit')">✎</button>
@@ -55,6 +59,12 @@ const STATUS_TEXT: Record<LearningItem['srs']['status'], string> = {
   gap: 14px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border);
+  border-radius: var(--r-1);
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.word-row:hover {
+  background: var(--bg-soft);
 }
 
 .word-main {
@@ -84,10 +94,29 @@ const STATUS_TEXT: Record<LearningItem['srs']['status'], string> = {
   flex: 0 0 auto;
 }
 
+/* Apple Mail 式：操作按钮平时隐藏，hover 时滑入，触屏设备常显 */
 .word-actions {
   display: flex;
   gap: 4px;
   flex: 0 0 auto;
+  opacity: 0;
+  transform: translate3d(4px, 0, 0);
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+
+.word-row:hover .word-actions,
+.word-row:focus-within .word-actions {
+  opacity: 1;
+  transform: none;
+}
+
+@media (hover: none) {
+  .word-actions {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .icon-btn {
@@ -95,20 +124,33 @@ const STATUS_TEXT: Record<LearningItem['srs']['status'], string> = {
   height: 34px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
+  border-radius: var(--r-1);
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-dim);
-  transition: background 0.14s ease, color 0.14s ease;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--spring);
 }
 
 .icon-btn:hover {
-  background: var(--bg-soft);
+  background: rgba(17, 17, 17, 0.06);
   color: var(--text);
+}
+
+.icon-btn:active {
+  transform: scale(0.88);
 }
 
 .icon-btn.danger:hover {
   color: var(--danger);
+  background: var(--accent-dim);
+}
+
+/* 收藏星标：Apple 式暖金 */
+.icon-btn.is-starred {
+  color: #e8960c;
 }
 
 @media (max-width: 820px) {

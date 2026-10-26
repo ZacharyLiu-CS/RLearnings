@@ -3,6 +3,7 @@
     <text class="micro title">模型服务</text>
     <text class="muted desc">
       填写 Key 后，录入只需给出俄语单词，释义 / 词性 / 重音 / 变位 / 例句 / 标签由模型自动生成。
+      同时开启「录入」页的拍照识别（图片直传模型，不经过第三方服务）。
     </text>
 
     <view class="field">

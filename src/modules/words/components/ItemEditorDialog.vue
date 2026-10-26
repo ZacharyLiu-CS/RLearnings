@@ -95,17 +95,26 @@ function submit() {
 .mask {
   position: fixed;
   inset: 0;
-  background: rgba(6, 8, 12, 0.6);
+  /* iOS 遮罩：压暗 + 磨砂，聚焦前景内容 */
+  background: rgba(17, 17, 17, 0.3);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
   display: grid;
   place-items: center;
   padding: 20px;
   z-index: 50;
+  animation: fade-in var(--dur-2) var(--ease-out) both;
 }
 
 .dialog {
   width: min(560px, 100%);
   max-height: 86vh;
   overflow: auto;
+  border: none;
+  border-radius: var(--r-4);
+  padding: 24px;
+  box-shadow: var(--shadow-3);
+  animation: pop-in var(--dur-3) var(--spring-pop) both;
 }
 
 .grid {

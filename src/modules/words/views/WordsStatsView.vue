@@ -226,10 +226,20 @@ onMounted(() => void store.loadStats())
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition:
+    transform var(--dur-2) var(--spring),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.metric:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--shadow-2);
 }
 
 .metric strong {
   font-size: 26px;
+  letter-spacing: -0.022em;
+  font-variant-numeric: tabular-nums;
 }
 
 .curve {
@@ -259,7 +269,11 @@ onMounted(() => void store.loadStats())
   border-radius: 6px 6px 0 0;
   background: linear-gradient(180deg, var(--accent), rgba(79, 140, 255, 0.25));
   min-height: 3px;
-  transition: height 0.24s ease;
+  transition: height var(--dur-3) var(--ease-out);
+}
+
+.curve-bar:hover {
+  filter: brightness(1.08);
 }
 
 .dist-row {
@@ -280,7 +294,8 @@ onMounted(() => void store.loadStats())
 
 .dist-fill {
   height: 100%;
-  transition: width 0.24s ease;
+  border-radius: 999px;
+  transition: width var(--dur-3) var(--ease-out);
 }
 
 @media (max-width: 700px) {

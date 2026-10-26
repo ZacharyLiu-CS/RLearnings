@@ -48,6 +48,20 @@ const emit = defineEmits<{ (e: 'flip'): void }>()
   perspective: 1200px;
   height: 320px;
   cursor: pointer;
+  transition: transform var(--dur-2) var(--spring);
+}
+
+/* hover 悬浮：卡片整体轻微上浮，阴影加深，像可被拿起的实体卡片 */
+.card3d:hover {
+  transform: translate3d(0, -3px, 0);
+}
+
+.card3d:hover .face {
+  box-shadow: var(--shadow-2);
+}
+
+.card3d:active {
+  transform: translate3d(0, -1px, 0) scale(0.996);
 }
 
 .inner {
@@ -65,9 +79,10 @@ const emit = defineEmits<{ (e: 'flip'): void }>()
 .face {
   position: absolute;
   inset: 0;
-  border-radius: 2px;
-  border: 1px solid var(--line);
+  border-radius: var(--r-4);
+  border: 1px solid rgba(17, 17, 17, 0.07);
   background: var(--paper);
+  box-shadow: var(--shadow-1);
   backface-visibility: hidden;
   display: flex;
   flex-direction: column;
@@ -77,6 +92,7 @@ const emit = defineEmits<{ (e: 'flip'): void }>()
   padding: 24px;
   text-align: center;
   overflow: hidden;
+  transition: box-shadow var(--dur-2) var(--ease-out);
 }
 
 .back {

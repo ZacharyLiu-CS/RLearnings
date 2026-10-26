@@ -1,17 +1,49 @@
 /**
- * 录入页（小程序）：优先级 = 拍照 OCR → 手动（AI 补全）→ 批量粘贴。
+ * 录入页（小程序）：优先级 = 拍照识别 → 手动（AI 补全）→ 批量粘贴。
  * 手动录入只要求用户给出俄语单词，其余字段由模型生成。
  */
 import { enrichWord } from '../../core/ai'
 import { getAiConfig, isAiConfigured } from '../../core/settings'
-import { OCR_NOT_CONFIGURED, pickImage, recognizeFile } from '../../core/ocr'
+import {
+  OCR_NOT_CONFIGURED,
+  pickImage,
+  recognizeByVision,
+  recognizeFile,
+  resolveOcrMode,
+  type OcrMode,
+} from '../../core/ocr'
 import { repository } from '../../core/storage'
 import { config } from '../../config'
 import { createItem, parseBulkText } from '../../shared/item'
 import type { LearningItem } from '../../shared/types'
 import type { WordDraft } from '../../shared/ai'
 
-const TABS = ['拍照 OCR', '手动录入', '批量粘贴']
+interface TabDef {
+  key: 'ocr' | 'manual' | 'bulk'
+  label: string
+}
+
+/**
+ * 拍照识别在两种情况下可用：配了服务端接口，或配了 AI Key（走视觉模型）。
+ * 两者都没有时不展示该入口，避免用户与审核员看到不可用功能。
+ */
+function buildTabs(mode: OcrMode): TabDef[] {
+  const tabs: TabDef[] = []
+  if (mode !== 'none') {
+    tabs.push({ key: 'ocr', label: mode === 'vision' ? '拍照识别' : '拍照 OCR' })
+  }
+  tabs.push({ key: 'manual', label: '手动录入' }, { key: 'bulk', label: '批量粘贴' })
+  return tabs
+}
+
+const INITIAL_MODE = resolveOcrMode(config.ocrEndpoint, isAiConfigured())
+const INITIAL_TABS = buildTabs(INITIAL_MODE)
+
+const findTabIndex = (tabs: TabDef[], key: string): number =>
+  Math.max(
+    tabs.findIndex((tab) => tab.key === key),
+    0,
+  )
 
 const EMPTY_FORM = {
   ru: '',
@@ -50,8 +82,9 @@ function splitWords(text: string): string[] {
 
 Page({
   data: {
-    tabs: TABS,
-    tabIndex: 0,
+    tabs: INITIAL_TABS,
+    tabIndex: findTabIndex(INITIAL_TABS, 'manual'),
+    tabKey: 'manual',
     editId: '',
     form: { ...EMPTY_FORM },
     // 手动（AI）
@@ -65,8 +98,8 @@ Page({
     bulkText: '',
     bulkPreview: [] as Array<{ ru: string; zh: string }>,
     bulkCount: 0,
-    // OCR
-    ocrConfigured: Boolean(config.ocrEndpoint),
+    // 拍照识别
+    ocrMode: INITIAL_MODE,
     ocrTip: '',
     ocrBusy: false,
     drafts: [] as DraftRow[],
@@ -74,11 +107,25 @@ Page({
 
   onShow() {
     this.setData({ aiConfigured: isAiConfigured() })
+    this.applyOcrMode()
+  },
+
+  /** Key / 接口配置可能在设置页被改动，回到本页时重算 OCR 入口 */
+  applyOcrMode() {
+    const mode = resolveOcrMode(config.ocrEndpoint, isAiConfigured())
+    const tabs = buildTabs(mode)
+    const tabKey = tabs.some((tab) => tab.key === this.data.tabKey) ? this.data.tabKey : 'manual'
+    const tabIndex = findTabIndex(tabs, tabKey)
+    this.setData({ ocrMode: mode, tabs, tabIndex, tabKey: tabs[tabIndex]?.key ?? 'manual' })
   },
 
   onLoad(options) {
     if (options?.id) {
-      this.setData({ editId: options.id, tabIndex: 1 })
+      this.setData({
+        editId: options.id,
+        tabIndex: findTabIndex(this.data.tabs, 'manual'),
+        tabKey: 'manual',
+      })
       void this.loadForEdit(options.id)
     }
   },
@@ -100,7 +147,10 @@ Page({
   },
 
   onTab(e: IndexEvent) {
-    this.setData({ tabIndex: Number(e.currentTarget.dataset.index) })
+    const index = Number(e.currentTarget.dataset.index)
+    const tab = this.data.tabs[index]
+    if (!tab) return
+    this.setData({ tabIndex: index, tabKey: tab.key })
   },
 
   onGoSettings() {
@@ -149,7 +199,7 @@ Page({
       return
     }
     if (!isAiConfigured()) {
-      this.setData({ aiTip: '尚未配置 API Key，请先在「AI 设置」页填写 DeepSeek 的 Key。' })
+      this.setData({ aiTip: 'AI 补全未开启，可在「设置」中配置后再试。' })
       return
     }
 
@@ -260,18 +310,19 @@ Page({
     })
   },
 
-  // ---------- 拍照 OCR ----------
+  // ---------- 拍照识别 ----------
   async onPickImage() {
-    if (!config.ocrEndpoint) {
-      this.setData({ ocrTip: '尚未配置 OCR 服务地址（miniprogram/config.ts），请改用手动录入。' })
+    const mode = this.data.ocrMode
+    if (mode === 'none') {
+      this.setData({ ocrTip: '拍照识别暂未开放，请使用「手动录入」或「批量粘贴」。' })
       return
     }
-    this.setData({ ocrBusy: true, ocrTip: '识别中…' })
+    this.setData({ ocrBusy: true, ocrTip: mode === 'vision' ? 'AI 识别中…（约 5-15 秒）' : '识别中…' })
     try {
       const filePath = await pickImage()
-      const lines = await recognizeFile(filePath)
+      const lines = mode === 'vision' ? await recognizeByVision(getAiConfig(), filePath) : await recognizeFile(filePath)
       if (!lines.length) {
-        this.setData({ ocrTip: '没有识别到文字，可换一张更清晰的图片，或改用手动录入。' })
+        this.setData({ ocrTip: '没有识别到俄语内容，可换一张更清晰、正对书页的图片，或改用手动录入。' })
         return
       }
       this.setData({
@@ -288,7 +339,7 @@ Page({
       this.setData({
         ocrTip:
           code === OCR_NOT_CONFIGURED
-            ? '未配置 OCR 服务地址，请改用手动录入。'
+            ? '拍照识别暂未开放，请使用「手动录入」或「批量粘贴」。'
             : `识别失败：${(err as Error).message}。可改用手动录入。`,
       })
     } finally {
@@ -317,7 +368,7 @@ Page({
       return
     }
     if (!isAiConfigured()) {
-      wx.showToast({ title: '未配置 API Key', icon: 'none' })
+      wx.showToast({ title: 'AI 补全未开启', icon: 'none' })
       return
     }
     this.setData({ ocrBusy: true })

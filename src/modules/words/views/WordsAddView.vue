@@ -46,34 +46,45 @@ const active = ref<(typeof tabs)[number]['key']>('ocr')
   padding-bottom: 20px;
 }
 
+/* iOS 分段控件：灰轨 + 白色滑块态，弹簧按压 */
 .tabs {
   display: flex;
-  gap: 0;
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  overflow: hidden;
+  gap: 2px;
+  padding: 3px;
+  border: none;
+  border-radius: 12px;
+  background: var(--paper-soft);
 }
 
 .tab {
   flex: 1;
-  min-height: 44px;
+  min-height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: none;
-  background: var(--paper);
+  border-radius: 9px;
+  background: transparent;
   color: var(--ink-dim);
   font-size: 14px;
-  border-right: 1px solid var(--line);
+  transition:
+    background var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out),
+    transform var(--dur-1) var(--spring);
 }
 
-.tab:last-child {
-  border-right: none;
+.tab:active {
+  transform: scale(0.96);
 }
 
 .tab.is-active {
-  background: var(--ink);
-  color: #fff;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow:
+    0 0.5px 1px rgba(17, 17, 17, 0.08),
+    0 2px 8px rgba(17, 17, 17, 0.08);
 }
 </style>

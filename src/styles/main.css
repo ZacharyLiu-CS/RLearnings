@@ -17,9 +17,43 @@
   --line-strong: #111111;
   --accent: #d4321f;
   --accent-dim: rgba(212, 50, 31, 0.1);
+  --accent-ring: rgba(212, 50, 31, 0.22);
 
-  --font: 'Helvetica Neue', Helvetica, Inter, 'Segoe UI', 'PingFang SC',
-    'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  /* 语义色（历史别名，供旧组件引用） */
+  --warn: #a35a00;
+  --success: #0f6b4f;
+  --danger: var(--accent);
+  --text: var(--ink);
+  --text-dim: var(--ink-dim);
+  --border: var(--line);
+  --bg-soft: var(--paper-dim);
+  --radius: 10px;
+
+  /* Apple 圆角梯度（连续圆角近似） */
+  --r-1: 8px; /* 小控件：icon-btn、badge */
+  --r-2: 10px; /* 控件：按钮、输入框 */
+  --r-3: 14px; /* 卡片 */
+  --r-4: 18px; /* 浮层：对话框、闪卡 */
+
+  /* Apple 环境阴影：极浅、多层、无硬边 */
+  --shadow-1:
+    0 0.5px 1.5px rgba(17, 17, 17, 0.04),
+    0 2px 8px rgba(17, 17, 17, 0.04);
+  --shadow-2:
+    0 1px 2px rgba(17, 17, 17, 0.05),
+    0 12px 32px rgba(17, 17, 17, 0.1);
+  --shadow-3:
+    0 8px 16px rgba(17, 17, 17, 0.1),
+    0 24px 64px rgba(17, 17, 17, 0.16);
+
+  /* 毛玻璃材质 */
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-dim: rgba(244, 244, 241, 0.72);
+  --glass-dark: rgba(24, 24, 22, 0.82);
+
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+    Helvetica, Inter, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', system-ui, sans-serif;
   --font-ru: 'Helvetica Neue', Helvetica, Georgia, serif;
 
   --sidebar-w: 236px;
@@ -46,7 +80,37 @@ body {
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+}
+
+/* Apple 式选区：强调色淡染 */
+::selection {
+  background: rgba(212, 50, 31, 0.16);
+}
+
+/* macOS 覆盖式滚动条：细、圆头、轨道透明 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(17, 17, 17, 0.16);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 17, 17, 0.28);
+}
+
+/* 键盘聚焦环：仅 focus-visible 出现，避免点击时的视觉噪声 */
+:focus-visible {
+  outline: 2.5px solid var(--accent-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
 }
 
 button,
@@ -66,6 +130,12 @@ a {
   text-decoration: none;
 }
 
+/* 数字对齐：统计/计时类数字使用等宽数字形，避免跳动 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 /* 微标签：全大写 + 字距，瑞士排版的标志性元素 */
 .micro {
   font-size: var(--micro);
@@ -83,8 +153,11 @@ a {
 .sidebar {
   width: var(--sidebar-w);
   flex: 0 0 var(--sidebar-w);
-  background: var(--paper);
-  border-right: 1px solid var(--line);
+  /* macOS 侧栏 vibrancy：浅灰半透明 + 背景模糊，比纯白更有层次 */
+  background: var(--glass-dim);
+  backdrop-filter: saturate(1.6) blur(20px);
+  -webkit-backdrop-filter: saturate(1.6) blur(20px);
+  border-right: 1px solid rgba(17, 17, 17, 0.08);
   padding: 24px 0;
   display: flex;
   flex-direction: column;
@@ -95,7 +168,7 @@ a {
   align-items: baseline;
   gap: 10px;
   padding: 0 20px 24px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.06);
 }
 
 .brand-mark {
@@ -139,20 +212,32 @@ a {
   align-items: center;
   gap: 12px;
   padding: 9px 10px;
+  margin: 0 2px;
   color: var(--ink-dim);
-  border-radius: 2px;
+  border-radius: var(--r-1);
   min-height: 40px;
-  transition: background 0.12s linear, color 0.12s linear;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--spring);
 }
 
 .nav-item:hover {
-  background: var(--paper-dim);
+  background: rgba(17, 17, 17, 0.045);
   color: var(--ink);
 }
 
+.nav-item:active {
+  transform: scale(0.98);
+}
+
+/* 选中态保留瑞士墨块，但收敛为圆角块 + 轻微浮起 */
 .nav-item.is-active {
   background: var(--ink);
   color: #fff;
+  box-shadow:
+    0 0.5px 1px rgba(17, 17, 17, 0.2),
+    0 3px 10px rgba(17, 17, 17, 0.14);
 }
 
 .nav-item .label {
@@ -176,7 +261,11 @@ a {
 .topbar {
   height: 60px;
   flex: 0 0 60px;
-  border-bottom: 1px solid var(--line);
+  /* iOS 导航栏材质：半透明 + 高饱和模糊 */
+  background: var(--glass);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -186,7 +275,7 @@ a {
 .topbar h1 {
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.022em;
   margin: 0;
 }
 
@@ -207,9 +296,10 @@ a {
 /* ---------- 组件 ---------- */
 .card {
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 2px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: var(--r-3);
   padding: 20px;
+  box-shadow: var(--shadow-1);
 }
 
 .btn {
@@ -219,69 +309,114 @@ a {
   gap: 8px;
   min-height: 40px;
   padding: 0 16px;
-  border-radius: 2px;
-  border: 1px solid var(--ink);
+  border-radius: var(--r-2);
+  border: 1px solid rgba(17, 17, 17, 0.12);
   background: var(--paper);
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
+  box-shadow: 0 0.5px 1px rgba(17, 17, 17, 0.05);
   transition:
     background var(--dur-1) var(--ease-out),
     color var(--dur-1) var(--ease-out),
-    transform var(--dur-1) var(--ease-out);
+    border-color var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--spring);
 }
 
 .btn:hover {
   background: var(--paper-dim);
 }
 
+/* iOS 按压：轻微回弹缩放，比线性缩放更有物理感 */
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.965);
+  box-shadow: none;
 }
 
 .btn-primary {
   background: var(--accent);
-  border-color: var(--accent);
+  border-color: transparent;
   color: #fff;
+  font-weight: 600;
+  /* 顶部内高光：模拟 iOS 填充按钮的微妙光泽 */
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.22),
+    0 1px 2px rgba(212, 50, 31, 0.28),
+    0 4px 12px rgba(212, 50, 31, 0.18);
 }
 
 .btn-primary:hover {
+  background: #c42c1a;
+}
+
+.btn-primary:active {
   background: #b82717;
-  border-color: #b82717;
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.12);
 }
 
 .btn-danger {
   color: var(--accent);
-  border-color: var(--accent);
+  border-color: rgba(212, 50, 31, 0.35);
+}
+
+.btn-danger:hover {
+  background: var(--accent-dim);
 }
 
 .btn-ghost {
-  border-color: var(--line);
+  border-color: rgba(17, 17, 17, 0.1);
   color: var(--ink-dim);
+  box-shadow: none;
 }
 
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
+/* iOS 填充式输入：灰底无边框，聚焦时浮白 + 强调色光环 */
 .input,
 .textarea,
 .select {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
-  border-radius: 2px;
-  border: 1px solid var(--line);
-  background: var(--paper);
+  border-radius: var(--r-2);
+  border: 1px solid transparent;
+  background: var(--paper-soft);
   outline: none;
-  transition: border-color 0.12s linear;
+  transition:
+    background var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.input:hover,
+.textarea:hover,
+.select:hover {
+  background: #e6e6e2;
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
-  border-color: var(--ink);
+  background: var(--paper);
+  border-color: rgba(17, 17, 17, 0.1);
+  box-shadow:
+    0 0 0 3.5px var(--accent-ring),
+    var(--shadow-1);
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%235c5c58' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
 }
 
 .textarea {
@@ -306,15 +441,27 @@ a {
   gap: 6px;
   padding: 5px 12px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(17, 17, 17, 0.1);
   background: var(--paper);
   color: var(--ink-dim);
   font-size: 13px;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--spring);
+}
+
+.chip:hover {
+  background: var(--paper-dim);
+}
+
+.chip:active {
+  transform: scale(0.95);
 }
 
 .chip.is-active {
   background: var(--ink);
-  border-color: var(--ink);
+  border-color: transparent;
   color: #fff;
 }
 
@@ -323,6 +470,7 @@ a {
   align-items: center;
   padding: 2px 8px;
   border: 1px solid var(--line);
+  border-radius: 5px;
   color: var(--ink-dim);
   font-size: var(--micro);
   letter-spacing: 0.06em;
@@ -374,6 +522,7 @@ a {
 
 .notice {
   border-left: 3px solid var(--accent);
+  border-radius: 0 var(--r-2) var(--r-2) 0;
   background: var(--paper-dim);
   padding: 12px 16px;
   font-size: 13px;
@@ -405,7 +554,7 @@ a {
 
 /* ---------- 骨架屏 ---------- */
 .skeleton {
-  border-radius: 2px;
+  border-radius: var(--r-1);
   background: linear-gradient(90deg, #f0f0ed 25%, #e6e6e2 37%, #f0f0ed 63%);
   background-size: 400% 100%;
   animation: skeleton-shimmer 1.2s ease-in-out infinite;
@@ -420,24 +569,30 @@ a {
   }
 }
 
-/* ---------- Toast ---------- */
+/* ---------- Toast：iOS 风格底部居中胶囊 + 深色玻璃 ---------- */
 .toast-host {
   position: fixed;
-  left: 24px;
-  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 28px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
   z-index: 60;
   pointer-events: none;
 }
 
 .toast {
-  padding: 10px 16px;
-  background: var(--ink);
+  padding: 10px 18px;
+  background: var(--glass-dark);
+  backdrop-filter: saturate(1.6) blur(16px);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px);
   color: #fff;
   font-size: 13px;
-  border-radius: 2px;
+  font-weight: 500;
+  border-radius: 999px;
+  box-shadow: var(--shadow-2);
   /* 从下方浮入，带轻微回弹收敛 */
   animation: toast-in var(--dur-3) var(--spring) both;
 }
@@ -445,7 +600,7 @@ a {
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.96);
+    transform: translate3d(0, 12px, 0) scale(0.94);
   }
   to {
     opacity: 1;
@@ -454,13 +609,13 @@ a {
 }
 
 .toast-success {
-  background: #0f6b4f;
+  background: rgba(15, 90, 66, 0.88);
 }
 .toast-warn {
-  background: #a35a00;
+  background: rgba(140, 77, 0, 0.88);
 }
 .toast-error {
-  background: var(--accent);
+  background: rgba(184, 39, 23, 0.9);
 }
 
 
@@ -487,8 +642,11 @@ a {
     bottom: 0;
     height: 62px;
     padding-bottom: env(safe-area-inset-bottom);
-    background: var(--paper);
-    border-top: 1px solid var(--line);
+    /* iOS Tab Bar 材质 */
+    background: var(--glass);
+    backdrop-filter: saturate(1.8) blur(20px);
+    -webkit-backdrop-filter: saturate(1.8) blur(20px);
+    border-top: 1px solid rgba(17, 17, 17, 0.08);
     display: flex;
     z-index: 40;
   }
@@ -500,9 +658,15 @@ a {
     justify-content: center;
     gap: 3px;
     color: var(--ink-faint);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--spring);
+  }
+  .bottom-nav a:active {
+    transform: scale(0.92);
   }
   .bottom-nav a.is-active {
-    color: var(--ink);
+    color: var(--accent);
   }
   .bottom-nav .nav-label {
     font-size: var(--micro);
