@@ -85,7 +85,13 @@ Component({
           if (!info?.node) return
           const canvas = info.node
           const ctx = canvas.getContext('2d')
-          const dpr = wx.getSystemInfoSync().pixelRatio || 2
+          // getSystemInfoSync 已废弃；低版本基础库无 getWindowInfo 时回退
+          const compat = wx as unknown as {
+            getWindowInfo?: () => { pixelRatio: number }
+          }
+          const dpr = (typeof compat.getWindowInfo === 'function'
+            ? compat.getWindowInfo()
+            : wx.getSystemInfoSync()).pixelRatio || 2
           canvas.width = this.data.size * dpr
           canvas.height = this.data.size * dpr
           ctx.scale(dpr, dpr)

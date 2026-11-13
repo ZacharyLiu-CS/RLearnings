@@ -69,7 +69,13 @@ Page({
   },
 
   onLoad() {
-    const info = wx.getSystemInfoSync()
+    // getSystemInfoSync 已废弃；低版本基础库无 getWindowInfo 时回退
+    const compat = wx as unknown as {
+      getWindowInfo?: () => { windowHeight: number }
+    }
+    const info = typeof compat.getWindowInfo === 'function'
+      ? compat.getWindowInfo()
+      : wx.getSystemInfoSync()
     viewportHeight = info.windowHeight || 600
   },
 
